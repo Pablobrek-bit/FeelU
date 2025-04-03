@@ -8,30 +8,44 @@ datasource db {
 }
 
 model User {
-  id                String            @id @default(uuid()) @db.Uuid
-  name              String
-  email             String            @unique
-  password          String
-  age               Int
-  course            String
-  institution       String
-  bio               String
-  avatarUrl         String            @map("avatar_url")
-  instagramUrl      String            @map("instagram_url")
-  favoriteEmoji     String            @map("favorite_emoji")
-  gender            Gender
-  sexualOrientation SexualOrientation @map("sexual_orientation")
-  createdAt         DateTime          @default(now()) @map("created_at")
-  updatedAt         DateTime          @updatedAt @map("updated_at")
-  deletedAt         DateTime?         @map("deleted_at")
-  deleted           Boolean?          @default(false) @map("deleted")
-  filter            Filter?
-  likes             Like[]
-  matches           Match[]
-  role              Role              @default(USER)
+  id        String    @id @default(uuid()) @db.Uuid
+  email     String    @unique
+  password  String
+  role      Role      @default(USER)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+  deleted   Boolean?  @default(false) @map("deleted")
+  profile   Profile?
+  Filter    Filter?
+  Like      Like[]
+  Match     Match[]
 
-  @@index([deleted, gender, sexualOrientation], name: "idx_users_filter")
+  @@index([deleted], name: "idx_users_deleted")
   @@map("users")
+}
+
+model Profile {
+  id                    String            @id @default(uuid()) @db.Uuid
+  userId                String            @unique @db.Uuid
+  user                  User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name                  String
+  age                   Int
+  course                String
+  institution           String
+  bio                   String
+  avatarUrl             String            @map("avatar_url")
+  instagramUrl          String            @map("instagram_url")
+  favoriteEmoji         String            @map("favorite_emoji")
+  gender                Gender
+  sexualOrientation     SexualOrientation @map("sexual_orientation")
+  showGender            Boolean           @default(true) @map("show_gender")
+  showSexualOrientation Boolean           @default(true) @map("show_sexual_orientation")
+  createdAt             DateTime          @default(now()) @map("created_at")
+  updatedAt             DateTime          @updatedAt @map("updated_at")
+
+  @@index([gender, sexualOrientation], name: "idx_profiles_filter")
+  @@map("profiles")
 }
 
 model Filter {

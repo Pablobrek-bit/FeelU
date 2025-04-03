@@ -14,7 +14,8 @@ services:
     links:
       - tindaria_db
     volumes:
-      - ./tindaria:/app/tindaria
+      - .:/usr/app
+      - /usr/app/node_modules
 
   tindaria_db:
     container_name: tindaria_db
@@ -27,11 +28,11 @@ services:
       - '5432:5432'
     volumes:
       - tindaria_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   tindaria_db_data:
-    driver: local
-    driver_opts:
-      type: none
-      device: ./tindaria_db_data
-      o: bind
