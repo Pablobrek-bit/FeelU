@@ -28,8 +28,9 @@ model User {
   filter            Filter?
   likes             Like[]
   matches           Match[]
+  role              Role              @default(USER)
 
-  @@index([deleted, gender, sexualOrientation], name: "idx_users_deleted")
+  @@index([deleted, gender, sexualOrientation], name: "idx_users_filter")
   @@map("users")
 }
 
