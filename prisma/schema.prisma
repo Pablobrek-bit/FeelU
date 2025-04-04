@@ -15,7 +15,7 @@ model User {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
-  deleted   Boolean?  @default(false) @map("deleted")
+  deleted   Boolean?  @default(false)
   profile   Profile?
   Filter    Filter?
   Like      Like[]
@@ -31,32 +31,43 @@ model Profile {
   user                  User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   name                  String
   age                   Int
-  course                String
-  institution           String
+  course                String?
+  institution           String?
   bio                   String
   avatarUrl             String            @map("avatar_url")
-  instagramUrl          String            @map("instagram_url")
-  favoriteEmoji         String            @map("favorite_emoji")
+  instagramUrl          String?           @map("instagram_url")
+  favoriteEmoji         String?           @map("favorite_emoji")
   gender                Gender
   sexualOrientation     SexualOrientation @map("sexual_orientation")
   showGender            Boolean           @default(true) @map("show_gender")
   showSexualOrientation Boolean           @default(true) @map("show_sexual_orientation")
-  createdAt             DateTime          @default(now()) @map("created_at")
-  updatedAt             DateTime          @updatedAt @map("updated_at")
+  deletedAt             DateTime?         @map("deleted_at")
+  deleted               Boolean?          @default(false)
 
   @@index([gender, sexualOrientation], name: "idx_profiles_filter")
+  @@index([deleted], name: "idx_profiles_deleted")
   @@map("profiles")
 }
 
 model Filter {
-  id                String              @id @default(uuid()) @db.Uuid
-  userId            String              @unique @db.Uuid
-  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  gender            Gender[]
-  sexualOrientation SexualOrientation[]
+  id          String             @id @default(uuid()) @db.Uuid
+  userId      String             @unique @db.Uuid
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  preferences FilterPreference[]
 
   @@index([userId], name: "idx_filters_user_id")
   @@map("filters")
+}
+
+model FilterPreference {
+  id                String            @id @default(uuid()) @db.Uuid
+  filterId          String            @db.Uuid
+  filter            Filter            @relation(fields: [filterId], references: [id], onDelete: Cascade)
+  gender            Gender
+  sexualOrientation SexualOrientation
+
+  @@index([filterId], name: "idx_filter_preferences_filter_id")
+  @@map("filter_preferences")
 }
 
 model Like {
