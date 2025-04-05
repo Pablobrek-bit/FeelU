@@ -16,19 +16,17 @@ model User {
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
   deleted   Boolean?  @default(false)
+  filter    Filter?
+  like      Like[]
+  match     Match[]
   profile   Profile?
-  Filter    Filter?
-  Like      Like[]
-  Match     Match[]
 
-  @@index([deleted], name: "idx_users_deleted")
-  @@map("users")
+  @@index([deleted], map: "idx_users_deleted")
 }
 
 model Profile {
   id                    String            @id @default(uuid()) @db.Uuid
   userId                String            @unique @db.Uuid
-  user                  User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   name                  String
   age                   Int
   course                String?
@@ -41,12 +39,12 @@ model Profile {
   sexualOrientation     SexualOrientation @map("sexual_orientation")
   showGender            Boolean           @default(true) @map("show_gender")
   showSexualOrientation Boolean           @default(true) @map("show_sexual_orientation")
-  deletedAt             DateTime?         @map("deleted_at")
   deleted               Boolean?          @default(false)
+  deletedAt             DateTime?         @map("deleted_at")
+  user                  User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([gender, sexualOrientation], name: "idx_profiles_filter")
-  @@index([deleted], name: "idx_profiles_deleted")
-  @@map("profiles")
+  @@index([gender, sexualOrientation], map: "idx_profiles_filter")
+  @@index([deleted], map: "idx_profiles_deleted")
 }
 
 model Filter {
@@ -55,41 +53,37 @@ model Filter {
   user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   preferences FilterPreference[]
 
-  @@index([userId], name: "idx_filters_user_id")
-  @@map("filters")
+  @@index([userId], map: "idx_filters_user_id")
 }
 
 model FilterPreference {
   id                String            @id @default(uuid()) @db.Uuid
   filterId          String            @db.Uuid
-  filter            Filter            @relation(fields: [filterId], references: [id], onDelete: Cascade)
   gender            Gender
   sexualOrientation SexualOrientation
+  filter            Filter            @relation(fields: [filterId], references: [id], onDelete: Cascade)
 
-  @@index([filterId], name: "idx_filter_preferences_filter_id")
-  @@map("filter_preferences")
+  @@index([filterId], map: "idx_filter_preferences_filter_id")
 }
 
 model Like {
   id        String   @id @default(uuid()) @db.Uuid
   userId    String   @db.Uuid
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   likedUser String   @db.Uuid
   createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([likedUser], name: "idx_likes_liked_user")
-  @@map("likes")
+  @@index([likedUser], map: "idx_likes_liked_user")
 }
 
 model Match {
   id          String   @id @default(uuid()) @db.Uuid
   userId      String   @db.Uuid
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   matchedUser String   @db.Uuid
   createdAt   DateTime @default(now()) @map("created_at")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([matchedUser], name: "idx_matches_matched_user")
-  @@map("matches")
+  @@index([matchedUser], map: "idx_matches_matched_user")
 }
 
 enum Gender {
