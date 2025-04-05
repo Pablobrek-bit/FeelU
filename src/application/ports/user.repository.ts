@@ -4,4 +4,5 @@ export abstract class UserRepository {
     email: string;
     password: string;
   }): Promise<string>;
+  abstract teste(): Promise<void>;
 }

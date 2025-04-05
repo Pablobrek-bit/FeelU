@@ -10,12 +10,7 @@ export class FilterService {
     filters: CreateFilterSchema[],
     userId: string,
   ): Promise<void> {
-    await Promise.all(
-      filters.map(async (filter) => {
-        await this.filterRepository.createFilter(filter, userId);
-      }),
-    );
-    // await this.filterRepository.createFilter(filter, userId);
+    await this.filterRepository.createFilter(filters, userId);
   }
 
   async teste() {

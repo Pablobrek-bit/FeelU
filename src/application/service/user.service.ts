@@ -24,28 +24,19 @@ export class UserService {
       throw new UserAlreadyExistsError();
     }
 
-    // const { filters, email, password, profile } = userCreateData;
+    const { filters, email, password, profile } = userCreateData;
 
-    // console.log('filters', filters);
-    // console.log('email', email);
-    // console.log('password', password);
-    // console.log('profile', profile);
+    const userId = await this.userRepository.createUser({
+      email,
+      password,
+    });
 
-    // const userId = await this.userRepository.createUser({
-    //   email: userCreateData.email,
-    //   password: userCreateData.password,
-    // });
+    await this.profileService.createProfile(profile, userId);
 
-    await this.filterService.teste();
-    await this.profileService.teste();
-
-    // await this.filterService.createFilter(userCreateData.filters, userId);
-
-    // await this.profileService.createProfile(userCreateData.profile, userId);
+    await this.filterService.createFilter(filters, userId);
   }
 
   async test() {
-    await this.filterService.teste();
-    await this.profileService.teste();
+    await this.userRepository.teste();
   }
 }

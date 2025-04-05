@@ -24,4 +24,13 @@ export class PrismaUserRepository implements UserRepository {
 
     return userCreated.id;
   }
+
+  async teste(): Promise<void> {
+    await this.prisma.user.findMany({});
+    console.log('terminou de buscar user');
+    await this.prisma.profile.findMany({});
+    console.log('terminou de buscar profile');
+    await this.prisma.filter.findMany({});
+    console.log('terminou de buscar filter');
+  }
 }

@@ -1,7 +1,9 @@
+import { Injectable } from '@nestjs/common';
 import { CreateProfileSchema } from '../../../application/dto/profile/create-profile-schema';
 import { ProfileRepository } from '../../../application/ports/profile.repository';
 import { PrismaService } from '../../config/prisma.service';
 
+@Injectable()
 export class PrismaProfileRepository implements ProfileRepository {
   constructor(private readonly prisma: PrismaService) {}
   async createProfile(
