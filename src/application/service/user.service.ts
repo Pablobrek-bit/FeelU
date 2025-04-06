@@ -38,8 +38,4 @@ export class UserService {
 
     await this.filterService.createFilter(filters, userId);
   }
-
-  async test() {
-    await this.userRepository.teste();
-  }
 }

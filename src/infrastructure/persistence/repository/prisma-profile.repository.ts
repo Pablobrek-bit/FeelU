@@ -28,8 +28,4 @@ export class PrismaProfileRepository implements ProfileRepository {
       },
     });
   }
-
-  async teste() {
-    await this.prisma.profile.findMany({});
-  }
 }

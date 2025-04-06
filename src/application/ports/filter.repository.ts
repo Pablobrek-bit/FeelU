@@ -5,6 +5,4 @@ export abstract class FilterRepository {
     filter: CreateFilterSchema[],
     userId: string,
   ): Promise<void>;
-
-  abstract teste(): Promise<void>;
 }

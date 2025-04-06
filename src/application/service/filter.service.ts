@@ -12,8 +12,4 @@ export class FilterService {
   ): Promise<void> {
     await this.filterRepository.createFilter(filters, userId);
   }
-
-  async teste() {
-    await this.filterRepository.teste();
-  }
 }

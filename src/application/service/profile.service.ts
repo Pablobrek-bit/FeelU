@@ -12,8 +12,4 @@ export class ProfileService {
   ): Promise<void> {
     await this.profileRepository.createProfile(profile, userId);
   }
-
-  async teste() {
-    await this.profileRepository.teste();
-  }
 }

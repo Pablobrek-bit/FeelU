@@ -29,10 +29,4 @@ export class UserController {
   // criar metodo de refresh token
   // criar metodo de delete user
   // criar metodo de update user
-
-  @Post('test')
-  @HttpCode(200)
-  async test() {
-    await this.userService.test();
-  }
 }

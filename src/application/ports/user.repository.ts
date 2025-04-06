@@ -4,7 +4,6 @@ export abstract class UserRepository {
     email: string;
     password: string;
   }): Promise<string>;
-  abstract teste(): Promise<void>;
   abstract findUserByEmail(email: string): Promise<{
     id: string;
     email: string;

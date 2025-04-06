@@ -28,8 +28,4 @@ export class PrismaFilterRepository implements FilterRepository {
       data: filterPreferences,
     });
   }
-
-  async teste() {
-    await this.prisma.filter.findMany({});
-  }
 }

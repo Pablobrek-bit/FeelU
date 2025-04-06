@@ -5,6 +5,4 @@ export abstract class ProfileRepository {
     profile: CreateProfileSchema,
     userId: string,
   ): Promise<void>;
-
-  abstract teste(): Promise<void>;
 }
