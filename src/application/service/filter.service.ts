@@ -12,4 +12,15 @@ export class FilterService {
   ): Promise<void> {
     await this.filterRepository.createFilter(filters, userId);
   }
+
+  async updateFilter(
+    filters: CreateFilterSchema[] | undefined,
+    userId: string,
+  ): Promise<void> {
+    if (!filters) {
+      return;
+    }
+    await this.filterRepository.removeFilterPreferences(userId);
+    await this.filterRepository.createFilter(filters, userId);
+  }
 }

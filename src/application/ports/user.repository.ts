@@ -10,4 +10,6 @@ export abstract class UserRepository {
     password: string;
     role: string;
   } | null>;
+  abstract existUserById(userId: string): Promise<boolean>;
+  abstract updateUserPassword(userId: string, password: string): Promise<void>;
 }

@@ -5,6 +5,8 @@ import { UserAlreadyExistsError } from '../../shared/exception/UserAlreadyExists
 import { FilterService } from './filter.service';
 import { ProfileService } from './profile.service';
 import { hash } from 'bcryptjs';
+import { UpdateUserSchema } from '../dto/user/update-user-schema';
+import { EntityNotFoundException } from '../../shared/exception/EntityNotFoundException';
 
 @Injectable()
 export class UserService {
@@ -37,5 +39,27 @@ export class UserService {
     await this.profileService.createProfile(profile, userId);
 
     await this.filterService.createFilter(filters, userId);
+  }
+
+  async updateUser(
+    userUpdateData: UpdateUserSchema,
+    userId: string,
+  ): Promise<void> {
+    const userExists = await this.userRepository.existUserById(userId);
+
+    if (!userExists) {
+      throw new EntityNotFoundException('user');
+    }
+
+    const { filters, profile, password } = userUpdateData;
+
+    if (password) {
+      const passwordHash = await hash(password, 8);
+      await this.userRepository.updateUserPassword(userId, passwordHash);
+    }
+
+    await this.profileService.updateProfile(profile, userId);
+
+    await this.filterService.updateFilter(filters, userId);
   }
 }

@@ -13,8 +13,6 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async createUser(user: { email: string; password: string }): Promise<string> {
-    console.log('Creating user in PrismaUserRepository', user);
-
     const userCreated = await this.prisma.user.create({
       data: user,
       select: {
@@ -34,6 +32,21 @@ export class PrismaUserRepository implements UserRepository {
     return this.prisma.user.findUnique({
       where: { email },
       select: { id: true, email: true, password: true, role: true },
+    });
+  }
+
+  async existUserById(userId: string): Promise<boolean> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
+    });
+    return !!user;
+  }
+
+  async updateUserPassword(userId: string, password: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password },
     });
   }
 }

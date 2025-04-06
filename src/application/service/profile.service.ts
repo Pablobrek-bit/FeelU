@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ProfileRepository } from '../ports/profile.repository';
 import { CreateProfileSchema } from '../dto/profile/create-profile-schema';
+import type { UpdateProfileSchema } from '../dto/profile/update-profile-schema';
 
 @Injectable()
 export class ProfileService {
@@ -11,5 +12,12 @@ export class ProfileService {
     userId: string,
   ): Promise<void> {
     await this.profileRepository.createProfile(profile, userId);
+  }
+
+  async updateProfile(
+    profile: UpdateProfileSchema | undefined,
+    userId: string,
+  ): Promise<void> {
+    await this.profileRepository.updateProfile(profile, userId);
   }
 }

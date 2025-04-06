@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateProfileSchema } from '../../../application/dto/profile/create-profile-schema';
 import { ProfileRepository } from '../../../application/ports/profile.repository';
 import { PrismaService } from '../../config/prisma.service';
+import type { UpdateProfileSchema } from '../../../application/dto/profile/update-profile-schema';
 
 @Injectable()
 export class PrismaProfileRepository implements ProfileRepository {
@@ -25,6 +26,25 @@ export class PrismaProfileRepository implements ProfileRepository {
         showGender: profile.genderIsVisible,
         showSexualOrientation: profile.sexualOrientationVisible,
         userId,
+      },
+    });
+  }
+
+  async updateProfile(
+    profile: UpdateProfileSchema | undefined,
+    userId: string,
+  ) {
+    await this.prisma.profile.update({
+      where: { userId },
+      data: {
+        bio: profile?.bio,
+        favoriteEmoji: profile?.emoji,
+        showGender: profile?.genderIsVisible,
+        showSexualOrientation: profile?.sexualOrientationVisible,
+        course: profile?.course,
+        institution: profile?.institution,
+        instagramUrl: profile?.instagramUrl,
+        avatarUrl: profile?.avatarUrl,
       },
     });
   }

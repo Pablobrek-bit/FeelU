@@ -1,23 +1,22 @@
-import { IsOptional, IsString, Length } from 'class-validator';
-import { CreateProfileSchema } from '../profile/create-profile-schema';
-import type { CreateFilterSchema } from '../filter/create-filter-schema';
-
-type UpdateProfileSchema = Omit<
-  Partial<CreateProfileSchema>,
-  'name' | 'age' | 'gender' | 'sexualOrientation'
->;
-
-type UpdateFilterSchema = Partial<CreateFilterSchema>;
+import { IsOptional, IsString, Length, ValidateNested } from 'class-validator';
+import { UpdateProfileSchema } from '../profile/update-profile-schema';
+import { Type } from 'class-transformer';
+import { CreateFilterSchema } from '../filter/create-filter-schema';
+// import { CreateFilterSchema } from '../filter/create-filter-schema';
 
 export class UpdateUserSchema {
   @IsString()
-  @Length(6, 20, { message: 'Password must be between 8 and 20 characters' })
   @IsOptional()
+  @Length(6, 20, { message: 'Password must be between 8 and 20 characters' })
   password?: string;
 
   @IsOptional()
-  profile?: UpdateProfileSchema;
+  @ValidateNested({ each: true })
+  @Type(() => UpdateProfileSchema)
+  profile: UpdateProfileSchema;
 
   @IsOptional()
-  filters?: UpdateFilterSchema[];
+  @ValidateNested({ each: true })
+  @Type(() => CreateFilterSchema)
+  filters: CreateFilterSchema[];
 }
