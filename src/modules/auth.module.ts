@@ -6,10 +6,11 @@ import { AuthMiddleware } from '../middleware/auth.middleware';
   imports: [
     JwtModule.register({
       secret: process.env.JWT_SECRET ?? 'defaultSecret',
+      signOptions: { expiresIn: '2592000s' },
     }),
   ],
   providers: [AuthMiddleware],
-  exports: [AuthMiddleware],
+  exports: [AuthMiddleware, JwtModule],
 })
 export class AuthModule {
   configure(consumer: MiddlewareConsumer) {

@@ -21,15 +21,11 @@ export class AuthMiddleware implements NestMiddleware {
 
     const token = authHeader.split(' ')[1];
 
-    try {
-      const decoded = this.jwtService.verify(token, {
-        secret: process.env.JWT_SECRET ?? 'defaultSecret',
-      });
-      console.log('Decoded token:', decoded);
-      req['user'] = decoded;
-      next();
-    } catch (error) {
-      throw new UnauthorizedException('Invalid or expired token');
-    }
+    const decoded = this.jwtService.verify(token, {
+      secret: process.env.JWT_SECRET ?? 'defaultSecret',
+    });
+    console.log('Decoded token:', decoded);
+    req['user'] = decoded;
+    next();
   }
 }
