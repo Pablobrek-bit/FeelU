@@ -8,10 +8,12 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AppException } from '../shared/exception/AppException';
+import { JsonWebTokenError } from '@nestjs/jwt';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
   catch(exception: Error, host: ArgumentsHost): void {
+    console.log('exception', exception);
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
@@ -31,6 +33,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     if (exception instanceof AppException) {
       status = exception.statusCode;
       message = exception.message;
+    }
+
+    if (exception instanceof JsonWebTokenError) {
+      status = HttpStatus.UNAUTHORIZED;
+      message = 'Invalid token';
     }
 
     response.status(status).json({
