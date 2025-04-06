@@ -15,13 +15,13 @@ export class UserController {
   @HttpCode(201)
   async createUserWithProfileAndFilter(
     @Body() userCreateData: CreateUserSchema,
-  ) {
+  ): Promise<void> {
     await this.userService.createUserWithProfileAndFilter(userCreateData);
   }
 
   @Post('login')
   @HttpCode(200)
-  async login(@Body() loginData: LoginUserSchema) {
+  async login(@Body() loginData: LoginUserSchema): Promise<{ token: string }> {
     return this.authService.login(loginData);
   }
 
