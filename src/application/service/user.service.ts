@@ -4,6 +4,7 @@ import { CreateUserSchema } from '../dto/user/create-user-schema';
 import { UserAlreadyExistsError } from '../../shared/exception/UserAlreadyExistsError';
 import { FilterService } from './filter.service';
 import { ProfileService } from './profile.service';
+import { hash } from 'bcryptjs';
 
 @Injectable()
 export class UserService {
@@ -26,9 +27,11 @@ export class UserService {
 
     const { filters, email, password, profile } = userCreateData;
 
+    const passwordHash = await hash(password, 8);
+
     const userId = await this.userRepository.createUser({
       email,
-      password,
+      password: passwordHash,
     });
 
     await this.profileService.createProfile(profile, userId);
