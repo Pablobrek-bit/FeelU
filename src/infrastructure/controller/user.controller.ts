@@ -25,8 +25,14 @@ export class UserController {
     return this.authService.login(loginData);
   }
 
+  // metodo de test para ver se o middleware de autenticação esta funcionando
+  @Post('test')
+  @HttpCode(200)
+  async test(): Promise<{ message: string }> {
+    return { message: 'ok' };
+  }
+
   // criar metodo de logout
   // criar metodo de refresh token
   // criar metodo de delete user
-  // criar metodo de update user
 }

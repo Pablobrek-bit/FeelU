@@ -2,7 +2,6 @@ import { IsOptional, IsString, Length } from 'class-validator';
 import { CreateProfileSchema } from '../profile/create-profile-schema';
 import type { CreateFilterSchema } from '../filter/create-filter-schema';
 
-// criar um novo schema de validação para o profile usando
 type UpdateProfileSchema = Omit<
   Partial<CreateProfileSchema>,
   'name' | 'age' | 'gender' | 'sexualOrientation'
