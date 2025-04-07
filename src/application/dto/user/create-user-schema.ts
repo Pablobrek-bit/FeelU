@@ -4,9 +4,11 @@ import {
   IsString,
   Length,
   IsDefined,
+  ValidateNested,
 } from 'class-validator';
 import { CreateProfileSchema } from '../profile/create-profile-schema';
 import { CreateFilterSchema } from '../filter/create-filter-schema';
+import { Type } from 'class-transformer';
 
 export class CreateUserSchema {
   @IsString()
@@ -19,8 +21,12 @@ export class CreateUserSchema {
   password: string;
 
   @IsDefined({ message: 'Profile is required' })
+  @ValidateNested({ each: true })
+  @Type(() => CreateProfileSchema)
   profile: CreateProfileSchema;
 
   @IsDefined({ message: 'Filters are required' })
+  @ValidateNested({ each: true })
+  @Type(() => CreateFilterSchema)
   filters: CreateFilterSchema[];
 }
