@@ -7,6 +7,7 @@ import { ProfileService } from './profile.service';
 import { hash } from 'bcryptjs';
 import { UpdateUserSchema } from '../dto/user/update-user-schema';
 import { EntityNotFoundException } from '../../shared/exception/EntityNotFoundException';
+import type { UserModel } from '../../domain/model/user-model';
 
 @Injectable()
 export class UserService {
@@ -61,5 +62,15 @@ export class UserService {
     await this.profileService.updateProfile(profile, userId);
 
     await this.filterService.updateFilter(filters, userId);
+  }
+
+  async getUser(userId: string): Promise<UserModel> {
+    const user = await this.userRepository.getById(userId);
+
+    if (!user) {
+      throw new EntityNotFoundException('user');
+    }
+
+    return user;
   }
 }

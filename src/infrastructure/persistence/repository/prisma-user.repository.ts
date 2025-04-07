@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../config/prisma.service';
 import { UserRepository } from '../../../application/ports/user.repository';
+import { UserConverter } from '../converter/user-converter';
+import type { UserModel } from '../../../domain/model/user-model';
 
 @Injectable()
 export class PrismaUserRepository implements UserRepository {
@@ -48,5 +50,33 @@ export class PrismaUserRepository implements UserRepository {
       where: { id: userId },
       data: { password },
     });
+  }
+
+  async getById(userId: string): Promise<UserModel | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        filter: {
+          include: {
+            preferences: true,
+          },
+        },
+        profile: true,
+      },
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    if (!user.profile) {
+      return null;
+    }
+
+    return UserConverter.entityToModel(
+      user,
+      user.profile,
+      user.filter?.preferences,
+    );
   }
 }

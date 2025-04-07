@@ -1,10 +1,19 @@
-import { Body, Controller, HttpCode, Post, Put, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  Put,
+  Req,
+} from '@nestjs/common';
 import { UserService } from '../../application/service/user.service';
 import { CreateUserSchema } from '../../application/dto/user/create-user-schema';
 import { LoginUserSchema } from '../../application/dto/user/login-user-schema';
 import { AuthService } from '../../application/service/auth.service';
 import { UpdateUserSchema } from '../../application/dto/user/update-user-schema';
 import type { Request } from 'express';
+import type { UserModel } from '../../domain/model/user-model';
 
 @Controller('user')
 export class UserController {
@@ -39,15 +48,17 @@ export class UserController {
     await this.userService.updateUser(userUpdateData, userId);
   }
 
-  // metodo de test para ver se o middleware de autenticação esta funcionando
+  @Get()
+  @HttpCode(200)
+  async getUser(@Req() req: Request): Promise<UserModel> {
+    const userId = req.user.sub;
+    return await this.userService.getUser(userId);
+  }
+
   @Post('test')
   @HttpCode(200)
   async test(@Req() req: Request): Promise<{ message: string }> {
     console.log('User ID (do token):', req.user.sub);
     return { message: 'ok' };
   }
-
-  // criar metodo de logout
-  // criar metodo de refresh token
-  // criar metodo de delete user
 }
