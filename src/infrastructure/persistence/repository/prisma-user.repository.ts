@@ -79,4 +79,24 @@ export class PrismaUserRepository implements UserRepository {
       user.filter?.preferences,
     );
   }
+
+  async findUserByIds(userIds: string[]): Promise<UserModel[]> {
+    const users = await this.prisma.user.findMany({
+      where: {
+        id: {
+          in: userIds,
+        },
+      },
+      include: {
+        profile: true,
+      },
+    });
+
+    return users.map((user) => {
+      if (user.profile) {
+        return UserConverter.entityToModel(user, user.profile);
+      }
+      throw new Error('User profile is null');
+    });
+  }
 }

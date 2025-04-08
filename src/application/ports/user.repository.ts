@@ -20,4 +20,6 @@ export abstract class UserRepository {
   abstract updateUserPassword(userId: string, password: string): Promise<void>;
 
   abstract getById(userId: string): Promise<UserModel | null>;
+
+  abstract findUserByIds(userIds: string[]): Promise<UserModel[]>;
 }

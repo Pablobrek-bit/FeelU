@@ -59,4 +59,15 @@ export class SwipeService {
       }
     }
   }
+
+  async getMatches(userId: string): Promise<UserModel[]> {
+    const user = await this.userRepository.getById(userId);
+    if (!user) {
+      throw new EntityNotFoundException('User');
+    }
+
+    const matchesIds = await this.swipeRepository.getMatches(userId);
+
+    return await this.userRepository.findUserByIds(matchesIds);
+  }
 }

@@ -18,4 +18,6 @@ export abstract class SwipeRepository {
   abstract checkIfMatch(userId: string, likedUserId: string): Promise<boolean>;
 
   abstract registerMatch(userId: string, matchedUserId: string): Promise<void>;
+
+  abstract getMatches(userId: string): Promise<string[]>;
 }

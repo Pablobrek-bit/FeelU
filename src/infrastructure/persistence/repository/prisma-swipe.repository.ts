@@ -102,4 +102,17 @@ export class PrismaSwipeRepository implements SwipeRepository {
       ],
     });
   }
+
+  async getMatches(userId: string): Promise<string[]> {
+    const users = await this.prisma.match.findMany({
+      where: {
+        userId,
+      },
+      select: {
+        matchedUser: true,
+      },
+    });
+
+    return users.map((user) => user.matchedUser);
+  }
 }
