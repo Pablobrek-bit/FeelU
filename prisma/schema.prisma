@@ -20,6 +20,7 @@ model User {
   like      Like[]
   match     Match[]
   profile   Profile?
+  view      View[]
 
   @@index([deleted], map: "idx_users_deleted")
 }
@@ -84,6 +85,18 @@ model Match {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([matchedUser], map: "idx_matches_matched_user")
+}
+
+model View {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @db.Uuid
+  viewedUser String   @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, viewedUser])
+  @@index([userId], map: "idx_views_user_id")
+  @@index([viewedUser], map: "idx_views_viewed_user")
 }
 
 enum Gender {
