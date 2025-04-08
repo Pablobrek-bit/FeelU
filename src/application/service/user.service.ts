@@ -8,6 +8,7 @@ import { hash } from 'bcryptjs';
 import { UpdateUserSchema } from '../dto/user/update-user-schema';
 import { EntityNotFoundException } from '../../shared/exception/EntityNotFoundException';
 import type { UserModel } from '../../domain/model/user-model';
+import { RoleService } from './role.service';
 
 @Injectable()
 export class UserService {
@@ -15,6 +16,7 @@ export class UserService {
     private readonly userRepository: UserRepository,
     private readonly filterService: FilterService,
     private readonly profileService: ProfileService,
+    private readonly roleService: RoleService,
   ) {}
 
   async createUserWithProfileAndFilter(
@@ -35,6 +37,7 @@ export class UserService {
     const userId = await this.userRepository.createUser({
       email,
       password: passwordHash,
+      roleName: 'USER',
     });
 
     await this.profileService.createProfile(profile, userId);
@@ -72,5 +75,21 @@ export class UserService {
     }
 
     return user;
+  }
+
+  async updateUserRole(userId: string, roleName: string): Promise<void> {
+    const userExists = await this.userRepository.existUserById(userId);
+
+    if (!userExists) {
+      throw new EntityNotFoundException('user');
+    }
+
+    const roleExists = await this.roleService.existRoleByName(roleName);
+
+    if (!roleExists) {
+      throw new EntityNotFoundException('role');
+    }
+
+    await this.userRepository.updateUserRole(userId, roleName);
   }
 }

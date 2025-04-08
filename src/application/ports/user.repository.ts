@@ -1,3 +1,4 @@
+import type { Role } from '@prisma/client';
 import type { UserModel } from '../../domain/model/user-model';
 
 export abstract class UserRepository {
@@ -6,13 +7,14 @@ export abstract class UserRepository {
   abstract createUser(user: {
     email: string;
     password: string;
+    roleName: string;
   }): Promise<string>;
 
   abstract findUserByEmail(email: string): Promise<{
     id: string;
     email: string;
     password: string;
-    role: string;
+    role: Role;
   } | null>;
 
   abstract existUserById(userId: string): Promise<boolean>;
@@ -22,4 +24,6 @@ export abstract class UserRepository {
   abstract getById(userId: string): Promise<UserModel | null>;
 
   abstract findUserByIds(userIds: string[]): Promise<UserModel[]>;
+
+  abstract updateUserRole(userId: string, roleName: string): Promise<void>;
 }

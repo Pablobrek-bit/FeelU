@@ -7,6 +7,7 @@ import { UserRepository } from '../application/ports/user.repository';
 import { FilterModule } from './filter.module';
 import { ProfileModule } from './profile.module';
 import { AuthModule } from './auth.module';
+import { RoleModule } from './role.module';
 
 @Module({
   controllers: [UserController],
@@ -16,6 +17,6 @@ import { AuthModule } from './auth.module';
     { provide: UserRepository, useClass: PrismaUserRepository },
   ],
   exports: [UserService, UserRepository, AuthService],
-  imports: [FilterModule, ProfileModule, AuthModule],
+  imports: [FilterModule, ProfileModule, AuthModule, RoleModule],
 })
 export class UserModule {}
