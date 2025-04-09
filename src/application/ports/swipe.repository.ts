@@ -1,15 +1,8 @@
-import type { UserModel } from '../../domain/model/user-model';
-import type { Gender, SexualOrientation } from '@prisma/client';
-
 export abstract class SwipeRepository {
-  abstract findPotentialMatches(
+  abstract findPotentialMatchesIds(
     userId: string,
-    filters: {
-      genders: Gender[];
-      sexualOrientations: SexualOrientation[];
-    },
     limit: number,
-  ): Promise<UserModel[]>;
+  ): Promise<string[]>;
 
   abstract registerView(userId: string, viewedUserId: string): Promise<void>;
 
@@ -20,4 +13,6 @@ export abstract class SwipeRepository {
   abstract registerMatch(userId: string, matchedUserId: string): Promise<void>;
 
   abstract getMatches(userId: string): Promise<string[]>;
+
+  abstract getLikedProfiles(userId: string): Promise<string[]>;
 }

@@ -9,6 +9,7 @@ import { UpdateUserSchema } from '../dto/user/update-user-schema';
 import { EntityNotFoundException } from '../../shared/exception/EntityNotFoundException';
 import type { UserModel } from '../../domain/model/user-model';
 import { RoleService } from './role.service';
+import type { Gender, SexualOrientation } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -91,5 +92,28 @@ export class UserService {
     }
 
     await this.userRepository.updateUserRole(userId, roleName);
+  }
+
+  async findUsersByIds(userIds: string[]): Promise<UserModel[]> {
+    const users = await this.userRepository.findUserByIds(userIds);
+
+    return users;
+  }
+
+  async findPotentialMatchesUsers(
+    userId: string,
+    viewedUserIds: string[],
+    genders: Gender[],
+    sexualOrientations: SexualOrientation[],
+    limit: number,
+  ): Promise<UserModel[]> {
+    const users = await this.userRepository.findPotentialMatches(
+      userId,
+      viewedUserIds,
+      genders,
+      sexualOrientations,
+      limit,
+    );
+    return users;
   }
 }

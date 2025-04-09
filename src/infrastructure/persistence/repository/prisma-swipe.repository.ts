@@ -1,58 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../config/prisma.service';
 import { SwipeRepository } from '../../../application/ports/swipe.repository';
-import { UserConverter } from '../converter/user-converter';
-import type { UserModel } from '../../../domain/model/user-model';
-import type { Gender, SexualOrientation } from '@prisma/client';
 
 @Injectable()
 export class PrismaSwipeRepository implements SwipeRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findPotentialMatches(
+  async findPotentialMatchesIds(
     userId: string,
-    filters: {
-      genders: Gender[];
-      sexualOrientations: SexualOrientation[];
-    },
     limit: number,
-  ): Promise<UserModel[]> {
-    const viewedUserIds = await this.prisma.view.findMany({
+  ): Promise<string[]> {
+    const views = await this.prisma.view.findMany({
       where: { userId },
       select: { viewedUser: true },
-    });
-
-    const users = await this.prisma.user.findMany({
-      where: {
-        id: {
-          not: {
-            in: viewedUserIds.map((view) => view.viewedUser),
-          },
-          notIn: [userId],
-        },
-        profile: {
-          gender: {
-            in: filters.genders,
-          },
-          sexualOrientation: {
-            in: filters.sexualOrientations,
-          },
-        },
-      },
-      include: {
-        profile: true,
-      },
       take: limit,
     });
-
-    return users
-      .filter((user) => user.profile !== null)
-      .map((user) => {
-        if (user.profile) {
-          return UserConverter.entityToModel(user, user.profile);
-        }
-        throw new Error('User profile is null');
-      });
+    return views.map((view) => view.viewedUser);
   }
 
   async registerView(userId: string, viewedUserId: string): Promise<void> {
@@ -72,12 +35,10 @@ export class PrismaSwipeRepository implements SwipeRepository {
       },
     });
 
-    // Verificar se é um match
     return this.checkIfMatch(userId, likedUserId);
   }
 
   async checkIfMatch(userId: string, likedUserId: string): Promise<boolean> {
-    // Verificar se o usuário curtido também curtiu o usuário atual
     const otherUserLike = await this.prisma.like.findFirst({
       where: {
         userId: likedUserId,
@@ -114,5 +75,18 @@ export class PrismaSwipeRepository implements SwipeRepository {
     });
 
     return users.map((user) => user.matchedUser);
+  }
+
+  async getLikedProfiles(userId: string): Promise<string[]> {
+    const users = await this.prisma.like.findMany({
+      where: {
+        userId,
+      },
+      select: {
+        likedUser: true,
+      },
+    });
+
+    return users.map((user) => user.likedUser);
   }
 }

@@ -1,4 +1,4 @@
-import type { Role } from '@prisma/client';
+import type { Gender, Role, SexualOrientation } from '@prisma/client';
 import type { UserModel } from '../../domain/model/user-model';
 
 export abstract class UserRepository {
@@ -26,4 +26,12 @@ export abstract class UserRepository {
   abstract findUserByIds(userIds: string[]): Promise<UserModel[]>;
 
   abstract updateUserRole(userId: string, roleName: string): Promise<void>;
+
+  abstract findPotentialMatches(
+    userId: string,
+    viewedUserIds: string[],
+    genders: Gender[],
+    sexualOrientations: SexualOrientation[],
+    limit: number,
+  ): Promise<UserModel[]>;
 }

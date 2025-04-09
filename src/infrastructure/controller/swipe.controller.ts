@@ -21,7 +21,7 @@ export class SwipeController {
   @HttpCode(200)
   async getPotentialMatches(@Req() req: Request): Promise<UserModel[]> {
     const userId = req.user.sub;
-    return this.swipeService.getPotentialMatches(userId);
+    return this.swipeService.findPotentialMatches(userId);
   }
 
   @Post('profile')
@@ -40,11 +40,18 @@ export class SwipeController {
 
   @Get('matches')
   @HttpCode(200)
-  @UseGuards(new RoleGuard(['VIP']))
   async getMatches(@Req() req: Request): Promise<UserModel[]> {
     const userId = req.user.sub;
     const matches = this.swipeService.getMatches(userId);
 
     return matches;
+  }
+
+  @Get('liked-profiles')
+  @HttpCode(200)
+  @UseGuards(new RoleGuard(['VIP', 'ADMIN']))
+  async getLikedProfiles(@Req() req: Request): Promise<UserModel[]> {
+    const userId = req.user.sub;
+    return this.swipeService.getLikedProfiles(userId);
   }
 }
