@@ -34,18 +34,26 @@ export class PrismaProfileRepository implements ProfileRepository {
     profile: UpdateProfileSchema | undefined,
     userId: string,
   ) {
-    await this.prisma.profile.update({
-      where: { userId },
-      data: {
-        bio: profile?.bio,
-        favoriteEmoji: profile?.emoji,
-        showGender: profile?.genderIsVisible,
-        showSexualOrientation: profile?.sexualOrientationVisible,
-        course: profile?.course,
-        institution: profile?.institution,
-        instagramUrl: profile?.instagramUrl,
-        avatarUrl: profile?.avatarUrl,
-      },
-    });
+    const updateData = {
+      ...(profile?.bio && { bio: profile.bio }),
+      ...(profile?.emoji && { favoriteEmoji: profile.emoji }),
+      ...(profile?.genderIsVisible !== undefined && {
+        showGender: profile.genderIsVisible,
+      }),
+      ...(profile?.sexualOrientationVisible !== undefined && {
+        showSexualOrientation: profile.sexualOrientationVisible,
+      }),
+      ...(profile?.course && { course: profile.course }),
+      ...(profile?.institution && { institution: profile.institution }),
+      ...(profile?.instagramUrl && { instagramUrl: profile.instagramUrl }),
+      ...(profile?.avatarUrl && { avatarUrl: profile.avatarUrl }),
+    };
+
+    if (Object.keys(updateData).length > 0) {
+      await this.prisma.profile.update({
+        where: { userId },
+        data: updateData,
+      });
+    }
   }
 }

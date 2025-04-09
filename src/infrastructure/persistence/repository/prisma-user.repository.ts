@@ -135,11 +135,10 @@ export class PrismaUserRepository implements UserRepository {
   ): Promise<UserModel[]> {
     const users = await this.prisma.user.findMany({
       where: {
+        emailVerified: true,
         id: {
-          not: {
-            in: viewedUserIds.map((view) => view),
-          },
-          notIn: [userId],
+          notIn: viewedUserIds,
+          not: userId,
         },
         profile: {
           gender: {
