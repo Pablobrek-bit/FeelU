@@ -20,9 +20,7 @@ export class UserService {
     private readonly roleService: RoleService,
   ) {}
 
-  async createUserWithProfileAndFilter(
-    userCreateData: CreateUserSchema,
-  ): Promise<void> {
+  async createUser(userCreateData: CreateUserSchema): Promise<void> {
     const userExists = await this.userRepository.existUserByEmail(
       userCreateData.email,
     );
@@ -46,7 +44,7 @@ export class UserService {
     await this.filterService.createFilter(filters, userId);
   }
 
-  async updateUser(
+  async updateUserDetails(
     userUpdateData: UpdateUserSchema,
     userId: string,
   ): Promise<void> {
@@ -68,7 +66,7 @@ export class UserService {
     await this.filterService.updateFilter(filters, userId);
   }
 
-  async getUser(userId: string): Promise<UserModel> {
+  async getUserById(userId: string): Promise<UserModel> {
     const user = await this.userRepository.getById(userId);
 
     if (!user) {
@@ -78,7 +76,7 @@ export class UserService {
     return user;
   }
 
-  async updateUserRole(userId: string, roleName: string): Promise<void> {
+  async changeUserRole(userId: string, roleName: string): Promise<void> {
     const userExists = await this.userRepository.existUserById(userId);
 
     if (!userExists) {

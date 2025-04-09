@@ -27,7 +27,7 @@ export class UserController {
   async createUserWithProfileAndFilter(
     @Body() userCreateData: CreateUserSchema,
   ): Promise<void> {
-    await this.userService.createUserWithProfileAndFilter(userCreateData);
+    await this.userService.createUser(userCreateData);
   }
 
   @Post('login')
@@ -45,14 +45,14 @@ export class UserController {
   ): Promise<void> {
     const userId = req.user.sub;
 
-    await this.userService.updateUser(userUpdateData, userId);
+    await this.userService.updateUserDetails(userUpdateData, userId);
   }
 
   @Get()
   @HttpCode(200)
   async getUser(@Req() req: Request): Promise<UserModel> {
     const userId = req.user.sub;
-    return await this.userService.getUser(userId);
+    return await this.userService.getUserById(userId);
   }
 
   @Post('test')
