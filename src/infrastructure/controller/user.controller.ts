@@ -5,6 +5,7 @@ import {
   HttpCode,
   Post,
   Put,
+  Query,
   Req,
 } from '@nestjs/common';
 import { UserService } from '../../application/service/user.service';
@@ -60,5 +61,14 @@ export class UserController {
   async test(@Req() req: Request): Promise<{ message: string }> {
     console.log('User ID (do token):', req.user.sub);
     return { message: 'ok' };
+  }
+
+  @Get('verify-email')
+  @HttpCode(200)
+  async verifyEmail(
+    @Query('token') token: string,
+  ): Promise<{ message: string }> {
+    await this.userService.verifyEmail(token);
+    return { message: 'Email verified successfully' };
   }
 }

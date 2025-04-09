@@ -19,6 +19,7 @@ export class AuthModule {
       .exclude(
         { path: 'user/create', method: RequestMethod.POST },
         { path: 'user/login', method: RequestMethod.POST },
+        { path: 'user/verify-email', method: RequestMethod.GET },
       )
       .forRoutes({ path: '*', method: RequestMethod.ALL });
   }

@@ -8,6 +8,7 @@ import { FilterModule } from './filter.module';
 import { ProfileModule } from './profile.module';
 import { AuthModule } from './auth.module';
 import { RoleModule } from './role.module';
+import { EmailModule } from './email.module';
 
 @Module({
   controllers: [UserController],
@@ -17,6 +18,6 @@ import { RoleModule } from './role.module';
     { provide: UserRepository, useClass: PrismaUserRepository },
   ],
   exports: [UserService, UserRepository, AuthService],
-  imports: [FilterModule, ProfileModule, AuthModule, RoleModule],
+  imports: [FilterModule, ProfileModule, AuthModule, RoleModule, EmailModule],
 })
 export class UserModule {}

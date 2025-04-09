@@ -19,6 +19,7 @@ export class PrismaUserRepository implements UserRepository {
     email: string;
     password: string;
     roleName: string;
+    verificationToken: string;
   }): Promise<string> {
     const { id } = await this.prisma.user.create({
       data: {
@@ -28,6 +29,7 @@ export class PrismaUserRepository implements UserRepository {
         updatedAt: new Date(),
         deletedAt: null,
         deleted: false,
+        verificationToken: user.verificationToken,
         role: {
           connect: {
             name: user.roleName,
@@ -159,6 +161,27 @@ export class PrismaUserRepository implements UserRepository {
         return UserConverter.entityToModel(user, user.profile);
       }
       throw new Error('User profile is null');
+    });
+  }
+
+  async findUserByVerificationToken(token: string): Promise<string | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { verificationToken: token },
+      select: {
+        id: true,
+      },
+    });
+
+    return user ? user.id : null;
+  }
+
+  async updateUserVerificationToken(userId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        verificationToken: null,
+        emailVerified: true,
+      },
     });
   }
 }

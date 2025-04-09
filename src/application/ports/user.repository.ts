@@ -8,6 +8,7 @@ export abstract class UserRepository {
     email: string;
     password: string;
     roleName: string;
+    verificationToken: string;
   }): Promise<string>;
 
   abstract findUserByEmail(email: string): Promise<{
@@ -34,4 +35,8 @@ export abstract class UserRepository {
     sexualOrientations: SexualOrientation[],
     limit: number,
   ): Promise<UserModel[]>;
+
+  abstract findUserByVerificationToken(token: string): Promise<string | null>;
+
+  abstract updateUserVerificationToken(userId: string): Promise<void>;
 }

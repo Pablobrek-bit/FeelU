@@ -10,6 +10,8 @@ import { EntityNotFoundException } from '../../shared/exception/EntityNotFoundEx
 import type { UserModel } from '../../domain/model/user-model';
 import { RoleService } from './role.service';
 import type { Gender, SexualOrientation } from '@prisma/client';
+import { randomBytes } from 'crypto';
+import { EmailService } from './email.service';
 
 @Injectable()
 export class UserService {
@@ -17,6 +19,7 @@ export class UserService {
     private readonly userRepository: UserRepository,
     private readonly filterService: FilterService,
     private readonly profileService: ProfileService,
+    private readonly emailService: EmailService,
     private readonly roleService: RoleService,
   ) {}
 
@@ -32,16 +35,19 @@ export class UserService {
     const { filters, email, password, profile } = userCreateData;
 
     const passwordHash = await hash(password, 8);
+    const verificationToken = randomBytes(32).toString('hex');
 
     const userId = await this.userRepository.createUser({
       email,
       password: passwordHash,
       roleName: 'USER',
+      verificationToken,
     });
 
     await this.profileService.createProfile(profile, userId);
-
     await this.filterService.createFilter(filters, userId);
+
+    await this.emailService.sendVerificationEmail(email, verificationToken);
   }
 
   async updateUserDetails(
@@ -113,5 +119,15 @@ export class UserService {
       limit,
     );
     return users;
+  }
+
+  async verifyEmail(token: string): Promise<void> {
+    const userId = await this.userRepository.findUserByVerificationToken(token);
+
+    if (!userId) {
+      throw new EntityNotFoundException('user');
+    }
+
+    await this.userRepository.updateUserVerificationToken(userId);
   }
 }
