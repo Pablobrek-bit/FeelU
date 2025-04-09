@@ -98,7 +98,7 @@ export class UserService {
     return users;
   }
 
-  async findPotentialMatchesUsers(
+  async findPotentialMatches(
     userId: string,
     viewedUserIds: string[],
     genders: Gender[],

@@ -20,7 +20,7 @@ export class PrismaUserRepository implements UserRepository {
     password: string;
     roleName: string;
   }): Promise<string> {
-    const userCreated = await this.prisma.user.create({
+    const { id } = await this.prisma.user.create({
       data: {
         email: user.email,
         password: user.password,
@@ -39,7 +39,7 @@ export class PrismaUserRepository implements UserRepository {
       },
     });
 
-    return userCreated.id;
+    return id;
   }
 
   async findUserByEmail(email: string): Promise<{
@@ -82,19 +82,13 @@ export class PrismaUserRepository implements UserRepository {
       },
     });
 
-    if (!user) {
-      return null;
-    }
-
-    if (!user.profile) {
-      return null;
-    }
-
-    return UserConverter.entityToModel(
-      user,
-      user.profile,
-      user.filter?.preferences,
-    );
+    return user && user.profile
+      ? UserConverter.entityToModel(
+          user,
+          user.profile,
+          user.filter?.preferences,
+        )
+      : null;
   }
 
   async findUserByIds(userIds: string[]): Promise<UserModel[]> {
@@ -110,10 +104,10 @@ export class PrismaUserRepository implements UserRepository {
     });
 
     return users.map((user) => {
-      if (user.profile) {
-        return UserConverter.entityToModel(user, user.profile);
+      if (!user.profile) {
+        throw new Error('User profile is null');
       }
-      throw new Error('User profile is null');
+      return UserConverter.entityToModel(user, user.profile);
     });
   }
 
@@ -160,13 +154,11 @@ export class PrismaUserRepository implements UserRepository {
       take: limit,
     });
 
-    return users
-      .filter((user) => user.profile !== null)
-      .map((user) => {
-        if (user.profile) {
-          return UserConverter.entityToModel(user, user.profile);
-        }
-        throw new Error('User profile is null');
-      });
+    return users.map((user) => {
+      if (user.profile) {
+        return UserConverter.entityToModel(user, user.profile);
+      }
+      throw new Error('User profile is null');
+    });
   }
 }

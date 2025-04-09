@@ -13,7 +13,7 @@ export class SwipeService {
   ) {}
 
   async findPotentialMatches(userId: string): Promise<UserModel[]> {
-    const user = await this.userService.getUser(userId);
+    const user = await this.userService.getUserById(userId);
     if (!user) {
       throw new EntityNotFoundException('User');
     }
@@ -32,7 +32,7 @@ export class SwipeService {
       10,
     );
 
-    const userFind = await this.userService.findPotentialMatchesUsers(
+    const userFind = await this.userService.findPotentialMatches(
       userId,
       usersIdFind,
       genders,
@@ -67,7 +67,7 @@ export class SwipeService {
   }
 
   async getMatches(userId: string): Promise<UserModel[]> {
-    const user = await this.userService.getUser(userId);
+    const user = await this.userService.getUserById(userId);
     if (!user) {
       throw new EntityNotFoundException('User');
     }
@@ -78,7 +78,7 @@ export class SwipeService {
   }
 
   async getLikedProfiles(userId: string): Promise<UserModel[]> {
-    const user = await this.userService.getUser(userId);
+    const user = await this.userService.getUserById(userId);
     if (!user) {
       throw new EntityNotFoundException('User');
     }
