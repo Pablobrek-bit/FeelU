@@ -1,9 +1,6 @@
-// retorna: Nome, avatarUrl, idade, emoji, curso, faculdade, genero, orientação sexual, instagram e bio
-
 import type { Gender, SexualOrientation } from '@prisma/client';
 import type { FilterModel } from './filters-model';
 
-// genero visivel, orientação sexual visivel, filtro
 export class UserModel {
   constructor(
     public id: string,

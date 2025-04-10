@@ -10,7 +10,7 @@ export class PrismaUserRepository implements UserRepository {
   constructor(private readonly prisma: PrismaService) {}
   async existUserByEmail(email: string): Promise<boolean> {
     const user = await this.prisma.user.findUnique({
-      where: { email },
+      where: { email, deleted: false },
     });
     return !!user;
   }
@@ -51,14 +51,14 @@ export class PrismaUserRepository implements UserRepository {
     role: Role;
   } | null> {
     return this.prisma.user.findUnique({
-      where: { email },
+      where: { email, deleted: false },
       select: { id: true, email: true, password: true, role: true },
     });
   }
 
   async existUserById(userId: string): Promise<boolean> {
     const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: userId, deleted: false },
       select: { id: true },
     });
     return !!user;
@@ -66,21 +66,23 @@ export class PrismaUserRepository implements UserRepository {
 
   async updateUserPassword(userId: string, password: string): Promise<void> {
     await this.prisma.user.update({
-      where: { id: userId },
+      where: { id: userId, deleted: false },
       data: { password },
     });
   }
 
   async getById(userId: string): Promise<UserModel | null> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+    const user = await this.prisma.user.findFirst({
+      where: { id: userId, deleted: false },
       include: {
         filter: {
           include: {
             preferences: true,
           },
         },
-        profile: true,
+        profile: {
+          where: { deleted: false },
+        },
       },
     });
 
@@ -96,12 +98,14 @@ export class PrismaUserRepository implements UserRepository {
   async findUserByIds(userIds: string[]): Promise<UserModel[]> {
     const users = await this.prisma.user.findMany({
       where: {
-        id: {
-          in: userIds,
-        },
+        id: { in: userIds },
+        emailVerified: true,
+        deleted: false,
       },
       include: {
-        profile: true,
+        profile: {
+          where: { deleted: false },
+        },
       },
     });
 
@@ -115,7 +119,7 @@ export class PrismaUserRepository implements UserRepository {
 
   async updateUserRole(userId: string, roleName: string): Promise<void> {
     await this.prisma.user.update({
-      where: { id: userId },
+      where: { id: userId, deleted: false },
       data: {
         role: {
           connect: {
@@ -136,17 +140,15 @@ export class PrismaUserRepository implements UserRepository {
     const users = await this.prisma.user.findMany({
       where: {
         emailVerified: true,
+        deleted: false,
         id: {
           notIn: viewedUserIds,
           not: userId,
         },
         profile: {
-          gender: {
-            in: genders,
-          },
-          sexualOrientation: {
-            in: sexualOrientations,
-          },
+          gender: { in: genders },
+          sexualOrientation: { in: sexualOrientations },
+          deleted: false,
         },
       },
       include: {
@@ -165,7 +167,7 @@ export class PrismaUserRepository implements UserRepository {
 
   async findUserByVerificationToken(token: string): Promise<string | null> {
     const user = await this.prisma.user.findUnique({
-      where: { verificationToken: token },
+      where: { verificationToken: token, deleted: false },
       select: {
         id: true,
       },
@@ -176,7 +178,7 @@ export class PrismaUserRepository implements UserRepository {
 
   async updateUserVerificationToken(userId: string): Promise<void> {
     await this.prisma.user.update({
-      where: { id: userId },
+      where: { id: userId, deleted: false },
       data: {
         verificationToken: null,
         emailVerified: true,

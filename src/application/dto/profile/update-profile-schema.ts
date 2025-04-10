@@ -7,11 +7,6 @@ import {
   MinLength,
 } from 'class-validator';
 
-// export type UpdateProfileSchema = Omit<
-//   Partial<CreateProfileSchema>,
-//   'name' | 'age' | 'gender' | 'sexualOrientation'
-// >;
-
 export class UpdateProfileSchema {
   @MinLength(3, { message: 'Bio must be at least 3 characters long' })
   @IsString()

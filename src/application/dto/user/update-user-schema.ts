@@ -2,7 +2,6 @@ import { IsOptional, IsString, Length, ValidateNested } from 'class-validator';
 import { UpdateProfileSchema } from '../profile/update-profile-schema';
 import { Type } from 'class-transformer';
 import { CreateFilterSchema } from '../filter/create-filter-schema';
-// import { CreateFilterSchema } from '../filter/create-filter-schema';
 
 export class UpdateUserSchema {
   @IsString()

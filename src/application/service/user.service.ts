@@ -138,6 +138,6 @@ export class UserService {
       throw new EntityNotFoundException('user');
     }
 
-    await this.userRepository.softDeleteUser(userId); // Call repository method
+    await this.userRepository.softDeleteUser(userId);
   }
 }

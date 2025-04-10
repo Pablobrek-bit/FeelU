@@ -26,6 +26,7 @@ export class PrismaProfileRepository implements ProfileRepository {
         showGender: profile.genderIsVisible,
         showSexualOrientation: profile.sexualOrientationVisible,
         userId,
+        deleted: false,
       },
     });
   }
@@ -50,8 +51,8 @@ export class PrismaProfileRepository implements ProfileRepository {
     };
 
     if (Object.keys(updateData).length > 0) {
-      await this.prisma.profile.update({
-        where: { userId },
+      await this.prisma.profile.updateMany({
+        where: { userId, deleted: false },
         data: updateData,
       });
     }

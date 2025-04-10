@@ -77,6 +77,6 @@ export class UserController {
   @HttpCode(204)
   async deleteUser(@Req() req: Request): Promise<void> {
     const userId = req.user.sub;
-    await this.userService.softDelete(userId); // Updated to call softDelete
+    await this.userService.softDelete(userId);
   }
 }

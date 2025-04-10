@@ -48,18 +48,14 @@ export class SwipeService {
     swipedUserId: string,
     liked: boolean,
   ): Promise<void> {
-    // Registrar visualização
     await this.swipeRepository.registerView(userId, swipedUserId);
 
-    // Se o usuário curtiu o perfil
     if (liked) {
-      // Registrar like e verificar se é um match
       const isMatch = await this.swipeRepository.registerLike(
         userId,
         swipedUserId,
       );
 
-      // Se for um match, registrar o match
       if (isMatch) {
         await this.swipeRepository.registerMatch(userId, swipedUserId);
       }
