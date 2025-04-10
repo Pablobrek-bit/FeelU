@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Post,
@@ -70,5 +71,12 @@ export class UserController {
   ): Promise<{ message: string }> {
     await this.userService.verifyEmail(token);
     return { message: 'Email verified successfully' };
+  }
+
+  @Delete('delete')
+  @HttpCode(204)
+  async deleteUser(@Req() req: Request): Promise<void> {
+    const userId = req.user.sub;
+    await this.userService.softDelete(userId); // Updated to call softDelete
   }
 }

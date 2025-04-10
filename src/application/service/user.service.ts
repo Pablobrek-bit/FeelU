@@ -130,4 +130,14 @@ export class UserService {
 
     await this.userRepository.updateUserVerificationToken(userId);
   }
+
+  async softDelete(userId: string): Promise<void> {
+    const userExists = await this.userRepository.existUserById(userId);
+
+    if (!userExists) {
+      throw new EntityNotFoundException('user');
+    }
+
+    await this.userRepository.softDeleteUser(userId); // Call repository method
+  }
 }

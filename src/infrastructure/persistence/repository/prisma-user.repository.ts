@@ -183,4 +183,14 @@ export class PrismaUserRepository implements UserRepository {
       },
     });
   }
+
+  async softDeleteUser(userId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        deleted: true,
+        deletedAt: new Date(),
+      },
+    });
+  }
 }

@@ -39,4 +39,6 @@ export abstract class UserRepository {
   abstract findUserByVerificationToken(token: string): Promise<string | null>;
 
   abstract updateUserVerificationToken(userId: string): Promise<void>;
+
+  abstract softDeleteUser(userId: string): Promise<void>;
 }
