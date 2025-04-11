@@ -13,7 +13,7 @@ export class UserModel {
     public showSexualOrientation: boolean,
     public bio: string,
     public emoji?: string,
-    public couse?: string,
+    public course?: string,
     public institution?: string,
     public instagramUrl?: string,
     public filters?: FilterModel[],

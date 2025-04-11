@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UserRepository } from '../ports/user.repository';
 import { UserAlreadyExistsError } from '../../shared/exception/UserAlreadyExistsError';
 import { FilterService } from './filter.service';
@@ -29,6 +29,10 @@ export class UserService {
     userCreateData: CreateUserSchema,
     avatar: Express.Multer.File,
   ): Promise<void> {
+    if (!avatar) {
+      throw new BadRequestException('Avatar is required');
+    }
+
     await this.ensureUserDoesNotExist(userCreateData.email);
 
     const passwordHash = await this.hashPassword(userCreateData.password);
@@ -107,6 +111,10 @@ export class UserService {
   }
 
   async verifyEmail(token: string): Promise<void> {
+    if (!token) {
+      throw new BadRequestException('Token is required');
+    }
+
     const userId = await this.userRepository.findUserByVerificationToken(token);
     if (!userId) {
       throw new EntityNotFoundException('user');
