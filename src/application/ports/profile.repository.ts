@@ -5,6 +5,7 @@ export abstract class ProfileRepository {
   abstract createProfile(
     profile: CreateProfileSchema,
     userId: string,
+    avatarUrl: string,
   ): Promise<void>;
 
   abstract updateProfile(

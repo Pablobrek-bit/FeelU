@@ -12,6 +12,7 @@ import { RoleService } from './role.service';
 import type { Gender, SexualOrientation } from '@prisma/client';
 import { randomBytes } from 'crypto';
 import { EmailService } from './email.service';
+import { FirebaseStorageService } from './firebase-storage.service';
 
 @Injectable()
 export class UserService {
@@ -21,9 +22,13 @@ export class UserService {
     private readonly profileService: ProfileService,
     private readonly emailService: EmailService,
     private readonly roleService: RoleService,
+    private readonly firebaseStorageService: FirebaseStorageService,
   ) {}
 
-  async createUser(userCreateData: CreateUserSchema): Promise<void> {
+  async createUser(
+    userCreateData: CreateUserSchema,
+    avatar: Express.Multer.File,
+  ): Promise<void> {
     const userExists = await this.userRepository.existUserByEmail(
       userCreateData.email,
     );
@@ -44,7 +49,10 @@ export class UserService {
       verificationToken,
     });
 
-    await this.profileService.createProfile(profile, userId);
+    // criar a imagem do avatar enviado
+    const avatarUrl = await this.firebaseStorageService.uploadFile(avatar);
+
+    await this.profileService.createProfile(profile, userId, avatarUrl);
     await this.filterService.createFilter(filters, userId);
 
     await this.emailService.sendVerificationEmail(email, verificationToken);

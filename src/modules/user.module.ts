@@ -9,6 +9,7 @@ import { ProfileModule } from './profile.module';
 import { AuthModule } from './auth.module';
 import { RoleModule } from './role.module';
 import { EmailModule } from './email.module';
+import { FirebaseStorageModule } from './firebase-storage.module';
 
 @Module({
   controllers: [UserController],
@@ -18,6 +19,13 @@ import { EmailModule } from './email.module';
     { provide: UserRepository, useClass: PrismaUserRepository },
   ],
   exports: [UserService, UserRepository, AuthService],
-  imports: [FilterModule, ProfileModule, AuthModule, RoleModule, EmailModule],
+  imports: [
+    FilterModule,
+    ProfileModule,
+    AuthModule,
+    RoleModule,
+    EmailModule,
+    FirebaseStorageModule,
+  ],
 })
 export class UserModule {}

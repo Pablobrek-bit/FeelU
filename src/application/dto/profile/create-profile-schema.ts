@@ -55,9 +55,4 @@ export class CreateProfileSchema {
   @IsOptional()
   @IsUrl({}, { message: 'Invalid URL format' })
   instagramUrl: string;
-
-  @IsString()
-  @IsOptional()
-  @IsUrl({}, { message: 'Invalid URL format' })
-  avatarUrl: string;
 }

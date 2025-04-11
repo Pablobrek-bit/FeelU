@@ -10,11 +10,12 @@ export class PrismaProfileRepository implements ProfileRepository {
   async createProfile(
     profile: CreateProfileSchema,
     userId: string,
+    avatarUrl: string,
   ): Promise<void> {
     await this.prisma.profile.create({
       data: {
         age: profile.age,
-        avatarUrl: profile.avatarUrl,
+        avatarUrl: avatarUrl,
         bio: profile.bio,
         gender: profile.gender,
         name: profile.name,

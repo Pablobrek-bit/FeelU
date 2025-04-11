@@ -5,6 +5,7 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  UnsupportedMediaTypeException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AppException } from '../shared/exception/AppException';
@@ -32,6 +33,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     if (exception instanceof AppException) {
       status = exception.statusCode;
+      message = exception.message;
+    }
+
+    if (exception instanceof UnsupportedMediaTypeException) {
+      status = HttpStatus.UNSUPPORTED_MEDIA_TYPE;
       message = exception.message;
     }
 

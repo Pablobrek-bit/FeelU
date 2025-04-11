@@ -10,8 +10,9 @@ export class ProfileService {
   async createProfile(
     profile: CreateProfileSchema,
     userId: string,
+    avatarUrl: string,
   ): Promise<void> {
-    await this.profileRepository.createProfile(profile, userId);
+    await this.profileRepository.createProfile(profile, userId, avatarUrl);
   }
 
   async updateProfile(

@@ -8,6 +8,8 @@ import {
   Put,
   Query,
   Req,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from '../../application/service/user.service';
 import { CreateUserSchema } from '../../application/dto/user/create-user-schema';
@@ -16,6 +18,8 @@ import { AuthService } from '../../application/service/auth.service';
 import { UpdateUserSchema } from '../../application/dto/user/update-user-schema';
 import type { Request } from 'express';
 import type { UserModel } from '../../domain/model/user-model';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { multerConfig } from '../../shared/utils/multer.utils';
 
 @Controller('user')
 export class UserController {
@@ -26,10 +30,12 @@ export class UserController {
 
   @Post('create')
   @HttpCode(201)
+  @UseInterceptors(FileInterceptor('avatar', multerConfig))
   async createUserWithProfileAndFilter(
     @Body() userCreateData: CreateUserSchema,
+    @UploadedFile() avatar: Express.Multer.File,
   ): Promise<void> {
-    await this.userService.createUser(userCreateData);
+    await this.userService.createUser(userCreateData, avatar);
   }
 
   @Post('login')
@@ -78,5 +84,17 @@ export class UserController {
   async deleteUser(@Req() req: Request): Promise<void> {
     const userId = req.user.sub;
     await this.userService.softDelete(userId);
+  }
+
+  @Post('upload-avatar')
+  @UseInterceptors(FileInterceptor('file', multerConfig))
+  async uploadAvatar(
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req: Request,
+  ): Promise<{ message: string }> {
+    // Placeholder implementation
+    console.log('File received:', file);
+    console.log('Avatar uploaded for user:', req.user.sub);
+    return { message: 'Avatar uploaded successfully' };
   }
 }
