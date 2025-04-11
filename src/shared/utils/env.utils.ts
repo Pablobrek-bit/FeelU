@@ -60,6 +60,4 @@ const env: EnvConfig = {
   FIREBASE_BUCKET_URL: process.env.FIREBASE_BUCKET_URL!,
 };
 
-console.log(`Environment variables loaded: ${JSON.stringify(env, null, 2)}`);
-
 export { env };

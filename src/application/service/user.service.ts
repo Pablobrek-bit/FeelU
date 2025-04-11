@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from '../ports/user.repository';
-import { CreateUserSchema } from '../dto/user/create-user-schema';
 import { UserAlreadyExistsError } from '../../shared/exception/UserAlreadyExistsError';
 import { FilterService } from './filter.service';
 import { ProfileService } from './profile.service';
@@ -13,6 +12,7 @@ import type { Gender, SexualOrientation } from '@prisma/client';
 import { randomBytes } from 'crypto';
 import { EmailService } from './email.service';
 import { FirebaseStorageService } from './firebase-storage.service';
+import type { CreateUserSchema } from '../dto/user/create-user-schema';
 
 @Injectable()
 export class UserService {
@@ -29,87 +29,65 @@ export class UserService {
     userCreateData: CreateUserSchema,
     avatar: Express.Multer.File,
   ): Promise<void> {
-    const userExists = await this.userRepository.existUserByEmail(
-      userCreateData.email,
-    );
+    await this.ensureUserDoesNotExist(userCreateData.email);
 
-    if (userExists) {
-      throw new UserAlreadyExistsError();
-    }
-
-    const { filters, email, password, profile } = userCreateData;
-
-    const passwordHash = await hash(password, 8);
-    const verificationToken = randomBytes(32).toString('hex');
+    const passwordHash = await this.hashPassword(userCreateData.password);
+    const verificationToken = this.generateVerificationToken();
 
     const userId = await this.userRepository.createUser({
-      email,
+      email: userCreateData.email,
       password: passwordHash,
       roleName: 'USER',
       verificationToken,
     });
 
-    // criar a imagem do avatar enviado
     const avatarUrl = await this.firebaseStorageService.uploadFile(avatar);
 
-    await this.profileService.createProfile(profile, userId, avatarUrl);
-    await this.filterService.createFilter(filters, userId);
+    await this.profileService.createProfile(
+      userCreateData.profile,
+      userId,
+      avatarUrl,
+    );
+    await this.filterService.createFilter(userCreateData.filters, userId);
 
-    await this.emailService.sendVerificationEmail(email, verificationToken);
+    await this.emailService.sendVerificationEmail(
+      userCreateData.email,
+      verificationToken,
+    );
   }
 
   async updateUserDetails(
     userUpdateData: UpdateUserSchema,
     userId: string,
   ): Promise<void> {
-    const userExists = await this.userRepository.existUserById(userId);
+    await this.ensureUserExists(userId);
 
-    if (!userExists) {
-      throw new EntityNotFoundException('user');
-    }
-
-    const { filters, profile, password } = userUpdateData;
-
-    if (password) {
-      const passwordHash = await hash(password, 8);
+    if (userUpdateData.password) {
+      const passwordHash = await this.hashPassword(userUpdateData.password);
       await this.userRepository.updateUserPassword(userId, passwordHash);
     }
 
-    await this.profileService.updateProfile(profile, userId);
-
-    await this.filterService.updateFilter(filters, userId);
+    await this.profileService.updateProfile(userUpdateData.profile, userId);
+    await this.filterService.updateFilter(userUpdateData.filters, userId);
   }
 
   async getUserById(userId: string): Promise<UserModel> {
     const user = await this.userRepository.getById(userId);
-
     if (!user) {
       throw new EntityNotFoundException('user');
     }
-
     return user;
   }
 
   async changeUserRole(userId: string, roleName: string): Promise<void> {
-    const userExists = await this.userRepository.existUserById(userId);
-
-    if (!userExists) {
-      throw new EntityNotFoundException('user');
-    }
-
-    const roleExists = await this.roleService.existRoleByName(roleName);
-
-    if (!roleExists) {
-      throw new EntityNotFoundException('role');
-    }
+    await this.ensureUserExists(userId);
+    await this.ensureRoleExists(roleName);
 
     await this.userRepository.updateUserRole(userId, roleName);
   }
 
   async findUsersByIds(userIds: string[]): Promise<UserModel[]> {
-    const users = await this.userRepository.findUserByIds(userIds);
-
-    return users;
+    return this.userRepository.findUserByIds(userIds);
   }
 
   async findPotentialMatches(
@@ -119,33 +97,54 @@ export class UserService {
     sexualOrientations: SexualOrientation[],
     limit: number,
   ): Promise<UserModel[]> {
-    const users = await this.userRepository.findPotentialMatches(
+    return this.userRepository.findPotentialMatches(
       userId,
       viewedUserIds,
       genders,
       sexualOrientations,
       limit,
     );
-    return users;
   }
 
   async verifyEmail(token: string): Promise<void> {
     const userId = await this.userRepository.findUserByVerificationToken(token);
-
     if (!userId) {
       throw new EntityNotFoundException('user');
     }
-
     await this.userRepository.updateUserVerificationToken(userId);
   }
 
   async softDelete(userId: string): Promise<void> {
-    const userExists = await this.userRepository.existUserById(userId);
+    await this.ensureUserExists(userId);
+    await this.userRepository.softDeleteUser(userId);
+  }
 
+  private async ensureUserDoesNotExist(email: string): Promise<void> {
+    const userExists = await this.userRepository.existUserByEmail(email);
+    if (userExists) {
+      throw new UserAlreadyExistsError();
+    }
+  }
+
+  private async ensureUserExists(userId: string): Promise<void> {
+    const userExists = await this.userRepository.existUserById(userId);
     if (!userExists) {
       throw new EntityNotFoundException('user');
     }
+  }
 
-    await this.userRepository.softDeleteUser(userId);
+  private async ensureRoleExists(roleName: string): Promise<void> {
+    const roleExists = await this.roleService.existRoleByName(roleName);
+    if (!roleExists) {
+      throw new EntityNotFoundException('role');
+    }
+  }
+
+  private async hashPassword(password: string): Promise<string> {
+    return hash(password, 8);
+  }
+
+  private generateVerificationToken(): string {
+    return randomBytes(32).toString('hex');
   }
 }

@@ -28,6 +28,7 @@ export class CreateProfileSchema {
   bio: string;
 
   @IsString()
+  @IsOptional()
   @Length(1, 1, { message: 'Emoji must be a single character' })
   emoji: string;
 
@@ -44,6 +45,7 @@ export class CreateProfileSchema {
   sexualOrientationVisible: boolean;
 
   @IsString()
+  @IsOptional()
   course: string;
 
   @IsString()

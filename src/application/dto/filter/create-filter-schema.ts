@@ -1,5 +1,5 @@
 import { SexualOrientation, Gender } from '@prisma/client';
-import { IsEnum } from 'class-validator';
+import { IsArray, IsEnum } from 'class-validator';
 
 export class CreateFilterSchema {
   @IsEnum(Gender, {
@@ -7,6 +7,7 @@ export class CreateFilterSchema {
   })
   gender: Gender;
 
+  @IsArray()
   @IsEnum(SexualOrientation, {
     each: true,
     message: 'Invalid sexual orientation',
