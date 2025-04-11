@@ -12,21 +12,33 @@ export class AuthService {
   ) {}
 
   async login(loginData: LoginUserSchema): Promise<{ token: string }> {
+    const user = await this.validateUser(loginData);
+    const token = this.generateToken(user.id, user.role.name);
+    return { token };
+  }
+
+  private async validateUser(loginData: LoginUserSchema) {
     const user = await this.userRepository.findUserByEmail(loginData.email);
 
-    if (!user) {
+    if (
+      !user ||
+      !(await this.isPasswordValid(loginData.password, user.password))
+    ) {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const isPasswordValid = await compare(loginData.password, user.password);
+    return user;
+  }
 
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid email or password');
-    }
+  private async isPasswordValid(
+    password: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
+    return compare(password, hashedPassword);
+  }
 
-    const payload = { sub: user.id, role: user.role.name };
-    const token = this.jwtService.sign(payload);
-
-    return { token };
+  private generateToken(userId: string, roleName: string): string {
+    const payload = { sub: userId, role: roleName };
+    return this.jwtService.sign(payload);
   }
 }
