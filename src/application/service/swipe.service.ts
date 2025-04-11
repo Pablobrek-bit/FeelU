@@ -4,6 +4,7 @@ import { EntityNotFoundException } from '../../shared/exception/EntityNotFoundEx
 import type { UserModel } from '../../domain/model/user-model';
 import type { Gender, SexualOrientation } from '@prisma/client';
 import { UserService } from './user.service';
+import type { FilterModel } from '../../domain/model/filters-model';
 
 @Injectable()
 export class SwipeService {
@@ -13,34 +14,24 @@ export class SwipeService {
   ) {}
 
   async findPotentialMatches(userId: string): Promise<UserModel[]> {
-    const user = await this.userService.getUserById(userId);
-    if (!user) {
-      throw new EntityNotFoundException('User');
-    }
+    const user = await this.getUserOrThrow(userId);
 
-    const filterPreferences = user.filters || [];
-
-    const genders: Gender[] = [
-      ...new Set(filterPreferences.map((fp) => fp.gender)),
-    ];
-    const sexualOrientations: SexualOrientation[] = [
-      ...new Set(filterPreferences.map((fp) => fp.sexualOrientation)),
-    ];
+    const { genders, sexualOrientations } = this.extractFilterPreferences(
+      user.filters,
+    );
 
     const usersIdFind = await this.swipeRepository.findPotentialMatchesIds(
       userId,
       10,
     );
 
-    const userFind = await this.userService.findPotentialMatches(
+    return await this.userService.findPotentialMatches(
       userId,
       usersIdFind,
       genders,
       sexualOrientations,
       10,
     );
-
-    return userFind;
   }
 
   async swipeProfile(
@@ -55,7 +46,6 @@ export class SwipeService {
         userId,
         swipedUserId,
       );
-
       if (isMatch) {
         await this.swipeRepository.registerMatch(userId, swipedUserId);
       }
@@ -63,25 +53,34 @@ export class SwipeService {
   }
 
   async getMatches(userId: string): Promise<UserModel[]> {
-    const user = await this.userService.getUserById(userId);
-    if (!user) {
-      throw new EntityNotFoundException('User');
-    }
-
+    await this.getUserOrThrow(userId);
     const matchesIds = await this.swipeRepository.getMatches(userId);
-
     return await this.userService.findUsersByIds(matchesIds);
   }
 
   async getLikedProfiles(userId: string): Promise<UserModel[]> {
+    await this.getUserOrThrow(userId);
+    const likedProfilesIds =
+      await this.swipeRepository.getLikedProfiles(userId);
+    return await this.userService.findUsersByIds(likedProfilesIds);
+  }
+
+  private async getUserOrThrow(userId: string): Promise<UserModel> {
     const user = await this.userService.getUserById(userId);
     if (!user) {
       throw new EntityNotFoundException('User');
     }
+    return user;
+  }
 
-    const likedProfilesIds =
-      await this.swipeRepository.getLikedProfiles(userId);
-
-    return await this.userService.findUsersByIds(likedProfilesIds);
+  private extractFilterPreferences(filters: FilterModel[] = []): {
+    genders: Gender[];
+    sexualOrientations: SexualOrientation[];
+  } {
+    const genders: Gender[] = [...new Set(filters.map((fp) => fp.gender))];
+    const sexualOrientations: SexualOrientation[] = [
+      ...new Set(filters.map((fp) => fp.sexualOrientation)),
+    ];
+    return { genders, sexualOrientations };
   }
 }
