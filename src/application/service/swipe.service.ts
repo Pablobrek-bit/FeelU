@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { SwipeRepository } from '../ports/swipe.repository';
 import { EntityNotFoundException } from '../../shared/exception/EntityNotFoundException';
 import type { UserModel } from '../../domain/model/user-model';
@@ -53,12 +53,16 @@ export class SwipeService {
   }
 
   async getMatches(userId: string): Promise<UserModel[]> {
+    this.definedTheDataOfTheFuncionality(new Date('2025-06-12T11:00:00Z'));
+
     await this.getUserOrThrow(userId);
     const matchesIds = await this.swipeRepository.getMatches(userId);
     return await this.userService.findUsersByIds(matchesIds);
   }
 
   async getLikedProfiles(userId: string): Promise<UserModel[]> {
+    this.definedTheDataOfTheFuncionality(new Date('2025-06-12T11:00:00Z'));
+
     await this.getUserOrThrow(userId);
     const likedProfilesIds =
       await this.swipeRepository.getLikedProfiles(userId);
@@ -83,5 +87,15 @@ export class SwipeService {
       ...new Set(filters.map((fp) => fp.sexualOrientation)),
     ];
     return { genders, sexualOrientations };
+  }
+
+  private definedTheDataOfTheFuncionality(featureAvailableDate: Date): void {
+    const currentDate = new Date();
+
+    if (currentDate < featureAvailableDate) {
+      throw new ForbiddenException(
+        'This feature is not available yet. Please check back later.',
+      );
+    }
   }
 }

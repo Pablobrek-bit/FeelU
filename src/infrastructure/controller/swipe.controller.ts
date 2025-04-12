@@ -10,6 +10,7 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
   ApiOperation,
   ApiResponse,
@@ -210,6 +211,17 @@ export class SwipeController {
           institution: { type: 'string' },
           instagramUrl: { type: 'string', format: 'uri' },
         },
+      },
+    },
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden',
+    schema: {
+      example: {
+        statusCode: 403,
+        message: 'This feature is not available yet. Please check back later',
+        timestamp: '2023-10-01T00:00:00.000Z',
+        path: '/swipe/liked-profiles',
       },
     },
   })
