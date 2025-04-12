@@ -91,13 +91,18 @@ export class UserService {
   }
 
   async changeUserRole(userId: string, roleName: string): Promise<void> {
-    await this.ensureUserExists(userId);
-    await this.ensureRoleExists(roleName);
+    await Promise.all([
+      this.ensureUserExists(userId),
+      this.ensureRoleExists(roleName),
+    ]);
 
     await this.userRepository.updateUserRole(userId, roleName);
   }
 
-  async findUsersByIds(userIds: string[]): Promise<UserModel[]> {
+  async findUsersByIds(userIds: string[]): Promise<UserModel[] | []> {
+    if (userIds.length === 0) {
+      return [];
+    }
     return this.userRepository.findUserByIds(userIds);
   }
 
@@ -156,7 +161,8 @@ export class UserService {
   }
 
   private async hashPassword(password: string): Promise<string> {
-    return hash(password, 8);
+    const saltRounds = 10;
+    return hash(password, saltRounds);
   }
 
   private generateVerificationToken(): string {
