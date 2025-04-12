@@ -6,6 +6,7 @@ import {
   HttpException,
   HttpStatus,
   UnsupportedMediaTypeException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { JsonWebTokenError } from '@nestjs/jwt';
@@ -44,6 +45,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     if (exception instanceof JsonWebTokenError) {
       status = HttpStatus.UNAUTHORIZED;
       message = 'Invalid token';
+    }
+
+    if (exception instanceof ForbiddenException) {
+      status = HttpStatus.FORBIDDEN;
+      message = exception.message;
     }
 
     response.status(status).json({
