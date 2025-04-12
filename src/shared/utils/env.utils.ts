@@ -12,6 +12,7 @@ interface EnvConfig {
   DB_PORT: number;
   DATABASE_URL: string;
   JWT_SECRET: string;
+  JWT_EXPIRATION_TIME: string;
   FIREBASE_CREDENTIALS: string;
   FIREBASE_BUCKET_URL: string;
 }
@@ -26,6 +27,7 @@ const requiredEnvVariables: (keyof EnvConfig)[] = [
   'DB_PORT',
   'DATABASE_URL',
   'JWT_SECRET',
+  'JWT_EXPIRATION_TIME',
   'FIREBASE_CREDENTIALS',
   'FIREBASE_BUCKET_URL',
 ];
@@ -46,6 +48,7 @@ const env: EnvConfig = {
   DB_PORT: parseInt(process.env.DB_PORT || '5432', 10),
   DATABASE_URL: process.env.DATABASE_URL!,
   JWT_SECRET: process.env.JWT_SECRET!,
+  JWT_EXPIRATION_TIME: process.env.JWT_EXPIRATION_TIME || '3600s',
   FIREBASE_CREDENTIALS: process.env.FIREBASE_CREDENTIALS!,
   FIREBASE_BUCKET_URL: process.env.FIREBASE_BUCKET_URL!,
 };

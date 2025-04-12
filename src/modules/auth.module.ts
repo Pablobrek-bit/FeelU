@@ -1,12 +1,13 @@
 import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthMiddleware } from '../infrastructure/http/middleware/auth-middleware';
+import { env } from '../shared/utils/env.utils';
 
 @Module({
   imports: [
     JwtModule.register({
-      secret: process.env.JWT_SECRET ?? 'defaultSecret',
-      signOptions: { expiresIn: '2592000s' },
+      secret: env.JWT_SECRET,
+      signOptions: { expiresIn: env.JWT_EXPIRATION_TIME },
     }),
   ],
   providers: [AuthMiddleware],
