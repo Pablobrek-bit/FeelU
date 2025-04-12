@@ -62,6 +62,7 @@ export class SwipeService {
     await this.getUserOrThrow(userId);
     const likedProfilesIds =
       await this.swipeRepository.getLikedProfiles(userId);
+
     return await this.userService.findUsersByIds(likedProfilesIds);
   }
 

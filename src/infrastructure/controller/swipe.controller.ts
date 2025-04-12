@@ -190,6 +190,29 @@ export class SwipeController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get liked profiles for a user' })
   @UseGuards(new RoleGuard(['VIP', 'ADMIN']))
+  @ApiResponse({
+    status: 200,
+    description: 'List of matches',
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', format: 'uuid' },
+          name: { type: 'string' },
+          avatarUrl: { type: 'string', format: 'uri' },
+          age: { type: 'number' },
+          gender: { type: 'string' },
+          sexualOrientation: { type: 'string' },
+          bio: { type: 'string' },
+          emoji: { type: 'string' },
+          course: { type: 'string' },
+          institution: { type: 'string' },
+          instagramUrl: { type: 'string', format: 'uri' },
+        },
+      },
+    },
+  })
   @ApiUnauthorizedResponse({
     description: 'Unauthorized',
     schema: {

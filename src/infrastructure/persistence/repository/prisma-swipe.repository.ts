@@ -80,13 +80,10 @@ export class PrismaSwipeRepository implements SwipeRepository {
   async getLikedProfiles(userId: string): Promise<string[]> {
     const users = await this.prisma.like.findMany({
       where: {
-        userId,
-      },
-      select: {
-        likedUser: true,
+        likedUser: userId,
       },
     });
 
-    return users.map((user) => user.likedUser);
+    return users.map((user) => user.userId);
   }
 }

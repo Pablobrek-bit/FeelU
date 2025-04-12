@@ -45,7 +45,8 @@ export class UserService {
       verificationToken,
     });
 
-    const avatarUrl = await this.firebaseStorageService.uploadFile(avatar);
+    // const avatarUrl = await this.firebaseStorageService.uploadFile(avatar);
+    const avatarUrl = 'https://example.com/avatar.jpg';
 
     await this.profileService.createProfile(
       userCreateData.profile,
@@ -54,10 +55,10 @@ export class UserService {
     );
     await this.filterService.createFilter(userCreateData.filters, userId);
 
-    await this.emailService.sendVerificationEmail(
-      userCreateData.email,
-      verificationToken,
-    );
+    // await this.emailService.sendVerificationEmail(
+    //   userCreateData.email,
+    //   verificationToken,
+    // );
   }
 
   async updateUserDetails(
