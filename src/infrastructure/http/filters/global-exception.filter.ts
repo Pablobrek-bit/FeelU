@@ -8,8 +8,8 @@ import {
   UnsupportedMediaTypeException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { AppException } from '../shared/exception/AppException';
 import { JsonWebTokenError } from '@nestjs/jwt';
+import { AppException } from '../../../shared/exception/AppException';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {

@@ -1,31 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// {
-//     "email": "familiasilva2020202116@gmail.com",
-//     "password": "123456",
-//     "profile": {
-//         "name": "Familia",
-//         "age": 18,
-//         "bio": "teste",
-//         "emoji": "🔥",
-//         "gender": "MULHER",
-//         "genderIsVisible": true,
-//         "sexualOrientation": "HETERO",
-//         "sexualOrientationVisible": true,
-//         "course": "Engenharia da Computação",
-//         "institution": "UFC",
-//         "instagramUrl": "https://www.instagram.com/_pabllo_henrique/",
-//         "avatarUrl": "https://imgv3.fotor.com/images/homepage-feature-card/Random-image-generator_5.jpg"
-//     },
-//     "filters": [
-//         {
-//             "gender": "HOMEM",
-//             "sexualOrientations": ["HETERO", "BI"]
-//         },
-//         {
-//             "gender": "MULHER",
-//             "sexualOrientations": ["HETERO", "BI", "HOMOSSEXUAL"]
-//         }
-//     ]
 
 import { Gender, SexualOrientation } from '@prisma/client';
 import {
@@ -47,7 +20,6 @@ import {
 import { CreateFilterSchema } from '../filter/create-filter-schema';
 import { Type } from 'class-transformer';
 
-// }
 export class NewCreateUserSchema {
   @IsString()
   @IsEmail({}, { message: 'Invalid email format' })
@@ -119,5 +91,3 @@ export class NewCreateUserSchema {
     return Object.assign(new NewCreateUserSchema(), raw);
   }
 }
-
-// no estilo form data vai ficar assim:

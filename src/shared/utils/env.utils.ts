@@ -30,22 +30,12 @@ const requiredEnvVariables: (keyof EnvConfig)[] = [
   'FIREBASE_BUCKET_URL',
 ];
 
-// Valida se todas as variáveis obrigatórias estão presentes
 for (const key of requiredEnvVariables) {
   if (!process.env[key]) {
     throw new Error(`Missing required environment variable: ${key}`);
   }
 }
 
-// Valida se o arquivo de credenciais do Firebase existe
-// const firebaseCredentialsPath = process.env.FIREBASE_CREDENTIALS!;
-// if (!existsSync(firebaseCredentialsPath)) {
-//   throw new Error(
-//     `Firebase credentials file not found at: ${firebaseCredentialsPath}`,
-//   );
-// }
-
-// Define as variáveis de ambiente tipadas
 const env: EnvConfig = {
   NODE_ENV: process.env.NODE_ENV as 'dev' | 'prod' | 'test',
   PORT: parseInt(process.env.PORT || '3000', 10),

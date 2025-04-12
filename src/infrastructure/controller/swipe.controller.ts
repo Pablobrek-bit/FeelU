@@ -21,7 +21,7 @@ import { SwipeService } from '../../application/service/swipe.service';
 import { SwipeProfileDto } from '../../application/dto/swipe/swipe-profile.dto';
 import type { Request } from 'express';
 import type { UserModel } from '../../domain/model/user-model';
-import { RoleGuard } from '../../middleware/role-guard';
+import { RoleGuard } from '../http/middleware/role-guard';
 
 @ApiTags('Swipe')
 @Controller('swipe')

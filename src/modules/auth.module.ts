@@ -1,6 +1,6 @@
 import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { AuthMiddleware } from '../middleware/auth-middleware';
+import { AuthMiddleware } from '../infrastructure/http/middleware/auth-middleware';
 
 @Module({
   imports: [

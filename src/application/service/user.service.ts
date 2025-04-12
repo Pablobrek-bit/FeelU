@@ -84,8 +84,8 @@ export class UserService {
       throw new EntityNotFoundException('user');
     }
 
-    // const likesAmount = await this.likeService.countByUserId(userId);
-    // user.likes = likesAmount;
+    const likesAmount = await this.likeService.countByUserId(userId);
+    user.likes = likesAmount;
 
     return user;
   }
