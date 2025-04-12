@@ -12,23 +12,34 @@ export class PrismaFilterRepository implements FilterRepository {
     filters: CreateFilterSchema[],
     userId: string,
   ): Promise<void> {
-    const { id: filterId } = await this.prisma.filter.upsert({
-      where: { userId },
-      create: { userId },
-      update: {},
-      select: { id: true },
-    });
+    await this.prisma.$transaction(async (tx) => {
+      const { id: filterId } = await tx.filter.upsert({
+        where: { userId },
+        create: { userId },
+        update: {},
+        select: { id: true },
+      });
 
-    const filterPreferences = filters.flatMap((filter) =>
-      filter.sexualOrientations.map((sexualOrientation) => ({
-        gender: filter.gender,
-        sexualOrientation,
-        filterId,
-      })),
-    );
+      // Ensure filters array is not empty before proceeding
+      if (filters.length === 0) {
+        return;
+      }
 
-    await this.prisma.filterPreference.createMany({
-      data: filterPreferences,
+      const filterPreferences = filters.flatMap((filter) =>
+        filter.sexualOrientations.map((sexualOrientation) => ({
+          gender: filter.gender,
+          sexualOrientation,
+          filterId,
+        })),
+      );
+
+      // Avoid createMany if filterPreferences is empty
+      if (filterPreferences.length > 0) {
+        await tx.filterPreference.createMany({
+          data: filterPreferences,
+          skipDuplicates: true, // Consider if duplicates should be skipped or cause an error
+        });
+      }
     });
   }
 
@@ -36,22 +47,26 @@ export class PrismaFilterRepository implements FilterRepository {
     filter: UpdateFilterSchema[],
     userId: string,
   ): Promise<void> {
-    const { id: filterId } = await this.prisma.filter.findFirstOrThrow({
-      where: { userId },
-      select: { id: true },
-    });
+    await this.prisma.$transaction(async (tx) => {
+      const { id: filterId } = await tx.filter.findFirstOrThrow({
+        where: { userId },
+        select: { id: true },
+      });
 
-    const filterPreferencesUpdated = filter.flatMap((filter) => {
-      filter.sexualOrientations?.map((SexualOrientation) => ({
-        gender: filter.gender,
-        SexualOrientation,
-        filterId,
-      }));
-    });
+      const filterPreferencesUpdated = filter.flatMap((filter) => {
+        return (
+          filter.sexualOrientations?.map((SexualOrientation) => ({
+            gender: filter.gender,
+            SexualOrientation,
+            filterId,
+          })) || []
+        );
+      });
 
-    await this.prisma.filterPreference.updateMany({
-      where: { filterId },
-      data: filterPreferencesUpdated,
+      await tx.filterPreference.updateMany({
+        where: { filterId },
+        data: filterPreferencesUpdated,
+      });
     });
   }
 

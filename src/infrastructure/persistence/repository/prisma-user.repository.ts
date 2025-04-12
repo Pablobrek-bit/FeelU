@@ -9,10 +9,10 @@ import type { Gender, Role, SexualOrientation } from '@prisma/client';
 export class PrismaUserRepository implements UserRepository {
   constructor(private readonly prisma: PrismaService) {}
   async existUserByEmail(email: string): Promise<boolean> {
-    const user = await this.prisma.user.findUnique({
+    const count = await this.prisma.user.count({
       where: { email, deleted: false },
     });
-    return !!user;
+    return count > 0;
   }
 
   async createUser(user: {
@@ -25,8 +25,6 @@ export class PrismaUserRepository implements UserRepository {
       data: {
         email: user.email,
         password: user.password,
-        createdAt: new Date(),
-        updatedAt: new Date(),
         deletedAt: null,
         deleted: false,
         verificationToken: user.verificationToken,
@@ -57,11 +55,10 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async existUserById(userId: string): Promise<boolean> {
-    const user = await this.prisma.user.findUnique({
+    const count = await this.prisma.user.count({
       where: { id: userId, deleted: false },
-      select: { id: true },
     });
-    return !!user;
+    return count > 0;
   }
 
   async updateUserPassword(userId: string, password: string): Promise<void> {
@@ -95,7 +92,10 @@ export class PrismaUserRepository implements UserRepository {
       : null;
   }
 
-  async findUserByIds(userIds: string[]): Promise<UserModel[]> {
+  async findUserByIds(userIds: string[]): Promise<UserModel[] | []> {
+    if (userIds.length === 0) {
+      return [];
+    }
     const users = await this.prisma.user.findMany({
       where: {
         id: { in: userIds },
@@ -137,13 +137,14 @@ export class PrismaUserRepository implements UserRepository {
     sexualOrientations: SexualOrientation[],
     limit: number,
   ): Promise<UserModel[]> {
+    const excludedUserIds = [...viewedUserIds, userId];
+
     const users = await this.prisma.user.findMany({
       where: {
         emailVerified: true,
         deleted: false,
         id: {
-          notIn: viewedUserIds,
-          not: userId,
+          notIn: excludedUserIds,
         },
         profile: {
           gender: { in: genders },
@@ -173,7 +174,7 @@ export class PrismaUserRepository implements UserRepository {
       },
     });
 
-    return user ? user.id : null;
+    return user?.id ?? null;
   }
 
   async updateUserVerificationToken(userId: string): Promise<void> {
@@ -187,12 +188,21 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async softDeleteUser(userId: string): Promise<void> {
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        deleted: true,
-        deletedAt: new Date(),
-      },
+    await this.prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: userId },
+        data: {
+          deleted: true,
+          deletedAt: new Date(),
+        },
+      });
+      await tx.profile.updateMany({
+        where: { userId: userId },
+        data: {
+          deleted: true,
+          deletedAt: new Date(),
+        },
+      });
     });
   }
 }
