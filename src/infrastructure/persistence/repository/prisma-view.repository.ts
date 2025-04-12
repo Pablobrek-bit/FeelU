@@ -26,4 +26,17 @@ export class PrismaViewRepository implements ViewRepository {
       },
     });
   }
+
+  async hasUserViewed(userId: string, viewedUserId: string): Promise<boolean> {
+    const view = await this.prisma.view.findFirst({
+      where: {
+        userId,
+        viewedUser: viewedUserId,
+      },
+      select: {
+        id: true,
+      },
+    });
+    return !!view;
+  }
 }
