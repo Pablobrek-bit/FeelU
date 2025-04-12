@@ -10,6 +10,7 @@ import { AuthModule } from './auth.module';
 import { RoleModule } from './role.module';
 import { EmailModule } from './email.module';
 import { FirebaseStorageModule } from './firebase-storage.module';
+import { LikeModule } from './like.module';
 
 @Module({
   controllers: [UserController],
@@ -26,6 +27,7 @@ import { FirebaseStorageModule } from './firebase-storage.module';
     RoleModule,
     EmailModule,
     FirebaseStorageModule,
+    LikeModule,
   ],
 })
 export class UserModule {}

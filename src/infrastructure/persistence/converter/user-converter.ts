@@ -7,6 +7,7 @@ export class UserConverter {
     user: User,
     profile: Profile,
     preferences?: FilterPreference[],
+    likes?: number,
   ): UserModel {
     return new UserModel(
       user.id,
@@ -27,6 +28,7 @@ export class UserConverter {
             return FilterConverter.entityToModel(preference);
           })
         : undefined,
+      likes ?? undefined,
     );
   }
 }

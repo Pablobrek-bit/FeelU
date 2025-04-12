@@ -17,5 +17,6 @@ export class UserModel {
     public institution?: string,
     public instagramUrl?: string,
     public filters?: FilterModel[],
+    public likes?: number,
   ) {}
 }

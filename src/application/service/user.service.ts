@@ -13,6 +13,7 @@ import { randomBytes } from 'crypto';
 import { EmailService } from './email.service';
 import { FirebaseStorageService } from './firebase-storage.service';
 import type { CreateUserSchema } from '../dto/user/create-user-schema';
+import { LikeService } from './like.service';
 
 @Injectable()
 export class UserService {
@@ -23,6 +24,7 @@ export class UserService {
     private readonly emailService: EmailService,
     private readonly roleService: RoleService,
     private readonly firebaseStorageService: FirebaseStorageService,
+    private readonly likeService: LikeService,
   ) {}
 
   async createUser(
@@ -81,6 +83,10 @@ export class UserService {
     if (!user) {
       throw new EntityNotFoundException('user');
     }
+
+    // const likesAmount = await this.likeService.countByUserId(userId);
+    // user.likes = likesAmount;
+
     return user;
   }
 
