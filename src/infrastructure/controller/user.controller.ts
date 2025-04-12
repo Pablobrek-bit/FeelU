@@ -6,6 +6,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpStatus,
   Post,
   Put,
   Query,
@@ -48,7 +49,7 @@ export class UserController {
   ) {}
 
   @Post('create')
-  @HttpCode(201)
+  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new user with profile and filters' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -103,7 +104,7 @@ export class UserController {
     },
   })
   @ApiResponse({
-    status: 201,
+    status: HttpStatus.CREATED,
     schema: { example: { message: 'User created successfully' } },
   })
   @ApiBadRequestResponse({
@@ -144,7 +145,7 @@ export class UserController {
     description: 'Invalid file format',
     schema: {
       example: {
-        statusCode: 415,
+        statusCode: HttpStatus.UNSUPPORTED_MEDIA_TYPE,
         message: 'Invalid file format',
         timestamp: '2023-10-01T00:00:00.000Z',
         path: '/user/create',
@@ -155,7 +156,7 @@ export class UserController {
     description: 'Avatar file is required',
     schema: {
       example: {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Avatar file is required',
         timestamp: '2023-10-01T00:00:00.000Z',
         path: '/user/create',
@@ -166,7 +167,7 @@ export class UserController {
     description: 'User already exists',
     schema: {
       example: {
-        statusCode: 409,
+        statusCode: HttpStatus.CONFLICT,
         message: 'User already exists',
         timestamp: '2023-10-01T00:00:00.000Z',
         path: '/user/create',
@@ -177,7 +178,7 @@ export class UserController {
     description: 'Internal server error',
     schema: {
       example: {
-        statusCode: 500,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Internal server error',
         timestamp: '2023-10-01T00:00:00.000Z',
         path: '/user/create',
@@ -201,7 +202,7 @@ export class UserController {
   }
 
   @Post('login')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @ApiBody({
     schema: {
       type: 'object',
@@ -213,7 +214,7 @@ export class UserController {
   })
   @ApiOperation({ summary: 'Login a user' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Login successful',
     schema: { example: { token: 'jwt-token' } },
   })
@@ -221,7 +222,7 @@ export class UserController {
     description: 'Invalid login credentials',
     schema: {
       example: {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: ['Invalid email format'],
         timestamp: '2023-10-01T00:00:00.000Z',
         path: '/user/login',
@@ -232,7 +233,7 @@ export class UserController {
     description: 'Invalid email or password',
     schema: {
       example: {
-        statusCode: 401,
+        statusCode: HttpStatus.UNAUTHORIZED,
         message: 'Invalid email or password',
         timestamp: '2023-10-01T00:00:00.000Z',
         path: '/user/login',
@@ -243,7 +244,7 @@ export class UserController {
     description: 'Internal server error',
     schema: {
       example: {
-        statusCode: 500,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Internal server error',
         timestamp: '2023-10-01T00:00:00.000Z',
         path: '/user/login',
@@ -255,7 +256,7 @@ export class UserController {
   }
 
   @Put('update')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -301,7 +302,7 @@ export class UserController {
   })
   @ApiOperation({ summary: 'Update user details' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'User updated successfully',
     schema: {
       example: {
@@ -313,7 +314,7 @@ export class UserController {
     description: 'Invalid Update credentials',
     schema: {
       example: {
-        statusCode: 400,
+        statusCode: HttpStatus.BAD_REQUEST,
         message: ['Invalid email format'],
         timestamp: '2023-10-01T00:00:00.000Z',
         path: '/user/update',
@@ -324,7 +325,7 @@ export class UserController {
     description: 'Unauthorized access',
     schema: {
       example: {
-        statusCode: 401,
+        statusCode: HttpStatus.UNAUTHORIZED,
         message: 'Authorization token is missing or invalid',
         timestamp: '2023-10-01T00:00:00.000Z',
         path: '/user/update',
@@ -335,7 +336,7 @@ export class UserController {
     description: 'Internal server error',
     schema: {
       example: {
-        statusCode: 500,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Internal server error',
         timestamp: '2023-10-01T00:00:00.000Z',
         path: '/user/update',
@@ -353,11 +354,11 @@ export class UserController {
   }
 
   @Get()
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user details' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'User details retrieved successfully',
     schema: {
       example: {
@@ -389,7 +390,7 @@ export class UserController {
     description: 'Unauthorized access',
     schema: {
       example: {
-        statusCode: 401,
+        statusCode: HttpStatus.UNAUTHORIZED,
         message: 'Authorization token is missing or invalid',
         timestamp: '2023-10-01T00:00:00.000Z',
         path: '/user/get',
@@ -400,7 +401,7 @@ export class UserController {
     description: 'Internal server error',
     schema: {
       example: {
-        statusCode: 500,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Internal server error',
         timestamp: '2023-10-01T00:00:00.000Z',
         path: '/user/get',
@@ -413,10 +414,10 @@ export class UserController {
   }
 
   @Get('verify-email')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Verify user email' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Email verified successfully',
     schema: { example: { message: 'Email verified successfully' } },
   })
@@ -435,7 +436,7 @@ export class UserController {
     description: 'Internal server error',
     schema: {
       example: {
-        statusCode: 500,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Internal server error',
         timestamp: '2023-10-01T00:00:00.000Z',
         path: '/user/verify-email',
@@ -457,7 +458,7 @@ export class UserController {
   @ApiUnauthorizedResponse({
     description: 'Unauthorized access',
     example: {
-      statusCode: 401,
+      statusCode: HttpStatus.UNAUTHORIZED,
       message: 'Authorization token is missing or invalid',
       timestamp: '2023-10-01T00:00:00.000Z',
       path: '/user/delete',
@@ -467,7 +468,7 @@ export class UserController {
     description: 'Internal server error',
     schema: {
       example: {
-        statusCode: 500,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Internal server error',
         timestamp: '2023-10-01T00:00:00.000Z',
         path: '/user/delete',
@@ -491,7 +492,7 @@ export class UserController {
   }
 
   @Post('test')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @UseInterceptors(FileInterceptor('file', multerConfig))
   async test(
     @Req() req: Request,

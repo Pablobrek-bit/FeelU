@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   Post,
+  HttpStatus,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -29,11 +30,11 @@ export class SwipeController {
   constructor(private readonly swipeService: SwipeService) {}
 
   @Get('profiles')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get potential matches for a user' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'List of potential matches',
     schema: {
       type: 'array',
@@ -83,7 +84,7 @@ export class SwipeController {
   }
 
   @Post('profile')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Swipe a profile' })
   @ApiBody({
@@ -131,10 +132,10 @@ export class SwipeController {
   }
 
   @Get('matches')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'List of matches',
     schema: {
       type: 'array',
@@ -187,12 +188,12 @@ export class SwipeController {
   }
 
   @Get('liked-profiles')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get liked profiles for a user' })
   @UseGuards(new RoleGuard(['VIP', 'ADMIN']))
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'List of matches',
     schema: {
       type: 'array',
