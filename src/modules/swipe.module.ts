@@ -4,6 +4,9 @@ import { SwipeService } from '../application/service/swipe.service';
 import { SwipeRepository } from '../application/ports/swipe.repository';
 import { PrismaSwipeRepository } from '../infrastructure/persistence/repository/prisma-swipe.repository';
 import { UserModule } from './user.module';
+import { ViewModule } from './view.module';
+import { MatchModule } from './match.module';
+import { LikeModule } from './like.module';
 
 @Module({
   controllers: [SwipeController],
@@ -12,6 +15,6 @@ import { UserModule } from './user.module';
     { provide: SwipeRepository, useClass: PrismaSwipeRepository },
   ],
   exports: [SwipeService, SwipeRepository],
-  imports: [UserModule],
+  imports: [UserModule, ViewModule, MatchModule, LikeModule],
 })
 export class SwipeModule {}

@@ -1,16 +1,20 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { SwipeRepository } from '../ports/swipe.repository';
 import { EntityNotFoundException } from '../../shared/exception/EntityNotFoundException';
 import type { UserModel } from '../../domain/model/user-model';
 import type { Gender, SexualOrientation } from '@prisma/client';
 import { UserService } from './user.service';
 import type { FilterModel } from '../../domain/model/filters-model';
+import { ViewService } from './view.service';
+import { MatchService } from './match.service';
+import { LikeService } from './like.service';
 
 @Injectable()
 export class SwipeService {
   constructor(
-    private readonly swipeRepository: SwipeRepository,
     private readonly userService: UserService,
+    private readonly viewService: ViewService,
+    private readonly matchService: MatchService,
+    private readonly likeService: LikeService,
   ) {}
 
   async findPotentialMatches(userId: string): Promise<UserModel[]> {
@@ -20,7 +24,7 @@ export class SwipeService {
       user.filters,
     );
 
-    const usersIdFind = await this.swipeRepository.findPotentialMatchesIds(
+    const usersIdFind = await this.viewService.findPotentialMatchesIds(
       userId,
       10,
     );
@@ -39,15 +43,12 @@ export class SwipeService {
     swipedUserId: string,
     liked: boolean,
   ): Promise<void> {
-    await this.swipeRepository.registerView(userId, swipedUserId);
+    await this.viewService.registerView(userId, swipedUserId);
 
     if (liked) {
-      const isMatch = await this.swipeRepository.registerLike(
-        userId,
-        swipedUserId,
-      );
+      const isMatch = await this.likeService.registerLike(userId, swipedUserId);
       if (isMatch) {
-        await this.swipeRepository.registerMatch(userId, swipedUserId);
+        await this.matchService.registerMatch(userId, swipedUserId);
       }
     }
   }
@@ -56,7 +57,7 @@ export class SwipeService {
     this.definedTheDataOfTheFuncionality(new Date('2025-06-12T11:00:00Z'));
 
     await this.getUserOrThrow(userId);
-    const matchesIds = await this.swipeRepository.getMatches(userId);
+    const matchesIds = await this.matchService.getMatchesByUserId(userId);
     return await this.userService.findUsersByIds(matchesIds);
   }
 
@@ -64,8 +65,8 @@ export class SwipeService {
     this.definedTheDataOfTheFuncionality(new Date('2025-06-12T11:00:00Z'));
 
     await this.getUserOrThrow(userId);
-    const likedProfilesIds =
-      await this.swipeRepository.getLikedProfiles(userId);
+
+    const likedProfilesIds = await this.likeService.getLikedProfiles(userId);
 
     return await this.userService.findUsersByIds(likedProfilesIds);
   }
