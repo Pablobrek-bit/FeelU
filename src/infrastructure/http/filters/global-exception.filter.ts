@@ -7,6 +7,8 @@ import {
   HttpStatus,
   UnsupportedMediaTypeException,
   ForbiddenException,
+  NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { JsonWebTokenError } from '@nestjs/jwt';
@@ -30,6 +32,16 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         typeof exceptionResponse === 'string'
           ? exceptionResponse
           : (exceptionResponse as any).message || message;
+    }
+
+    if (exception instanceof NotFoundException) {
+      status = HttpStatus.NOT_FOUND;
+      message = exception.message;
+    }
+
+    if (exception instanceof BadRequestException) {
+      status = HttpStatus.BAD_REQUEST;
+      message = exception.message;
     }
 
     if (exception instanceof AppException) {
