@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { CreateFilterSchema } from '../../../application/dto/filter/create-filter-schema';
 import { FilterRepository } from '../../../application/ports/filter.repository';
 import { PrismaService } from '../../config/prisma.service';
-import type { UpdateFilterSchema } from '../../../application/dto/filter/update-filter-schema';
 
 @Injectable()
 export class PrismaFilterRepository implements FilterRepository {
@@ -20,7 +19,6 @@ export class PrismaFilterRepository implements FilterRepository {
         select: { id: true },
       });
 
-      // Ensure filters array is not empty before proceeding
       if (filters.length === 0) {
         return;
       }
@@ -33,40 +31,51 @@ export class PrismaFilterRepository implements FilterRepository {
         })),
       );
 
-      // Avoid createMany if filterPreferences is empty
       if (filterPreferences.length > 0) {
         await tx.filterPreference.createMany({
           data: filterPreferences,
-          skipDuplicates: true, // Consider if duplicates should be skipped or cause an error
+          skipDuplicates: true,
         });
       }
     });
   }
 
   async updateFilter(
-    filter: UpdateFilterSchema[],
+    filters: CreateFilterSchema[],
     userId: string,
   ): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
-      const { id: filterId } = await tx.filter.findFirstOrThrow({
+      const filterRecord = await tx.filter.findUnique({
         where: { userId },
         select: { id: true },
       });
 
-      const filterPreferencesUpdated = filter.flatMap((filter) => {
+      if (!filterRecord) {
+        return;
+      }
+
+      const filterId = filterRecord.id;
+
+      await tx.filterPreference.deleteMany({
+        where: { filterId },
+      });
+
+      const newFilterPreferencesData = filters.flatMap((filter) => {
         return (
-          filter.sexualOrientations?.map((SexualOrientation) => ({
+          filter.sexualOrientations?.map((sexualOrientation) => ({
             gender: filter.gender,
-            SexualOrientation,
+            sexualOrientation,
             filterId,
           })) || []
         );
       });
 
-      await tx.filterPreference.updateMany({
-        where: { filterId },
-        data: filterPreferencesUpdated,
-      });
+      if (newFilterPreferencesData.length > 0) {
+        await tx.filterPreference.createMany({
+          data: newFilterPreferencesData,
+          skipDuplicates: true,
+        });
+      }
     });
   }
 

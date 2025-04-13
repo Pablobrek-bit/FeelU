@@ -1,5 +1,4 @@
 import type { CreateFilterSchema } from '../dto/filter/create-filter-schema';
-import type { UpdateFilterSchema } from '../dto/filter/update-filter-schema';
 
 export abstract class FilterRepository {
   abstract createFilter(
@@ -8,7 +7,7 @@ export abstract class FilterRepository {
   ): Promise<void>;
 
   abstract updateFilter(
-    filter: UpdateFilterSchema[],
+    filter: CreateFilterSchema[],
     userId: string,
   ): Promise<void>;
 
