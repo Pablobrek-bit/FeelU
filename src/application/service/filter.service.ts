@@ -20,7 +20,7 @@ export class FilterService {
     if (!filters) {
       return;
     }
-    await this.filterRepository.removeFilterPreferences(userId);
-    await this.filterRepository.createFilter(filters, userId);
+
+    await this.filterRepository.updateFilter(filters, userId);
   }
 }
