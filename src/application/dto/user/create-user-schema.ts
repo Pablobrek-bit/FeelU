@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 import { CreateProfileSchema } from '../profile/create-profile-schema';
 import { CreateFilterSchema } from '../filter/create-filter-schema';
-import { Type } from 'class-transformer';
+import { plainToInstance, Type } from 'class-transformer';
 
 export class CreateUserSchema {
   @IsString()
@@ -46,20 +46,40 @@ export class CreateUserSchema {
     instance.profile.bio = profileJson.bio;
     instance.profile.emoji = profileJson.emoji || undefined;
     instance.profile.gender = profileJson.gender;
-    instance.profile.genderIsVisible = profileJson.genderIsVisible === 'true';
+    if (
+      profileJson.genderIsVisible &&
+      (profileJson.genderIsVisible === 'true' ||
+        profileJson.genderIsVisible === 'false')
+    ) {
+      instance.profile.genderIsVisible = profileJson.genderIsVisible === 'true';
+    }
+
     instance.profile.sexualOrientation = profileJson.sexualOrientation;
-    instance.profile.sexualOrientationVisible =
-      profileJson.sexualOrientationVisible === 'true';
+    if (
+      profileJson.sexualOrientationVisible &&
+      (profileJson.sexualOrientationVisible === 'true' ||
+        profileJson.sexualOrientationVisible === 'false')
+    ) {
+      instance.profile.sexualOrientationVisible =
+        profileJson.sexualOrientationVisible === 'true';
+    }
+
     instance.profile.course = profileJson.course || undefined;
     instance.profile.institution = profileJson.institution || undefined;
     instance.profile.instagramUrl = profileJson.instagramUrl || undefined;
 
-    instance.filters = JSON.parse(raw.filters).map((filter: any) => ({
+    const parsedFilters = JSON.parse(raw.filters).map((filter: any) => ({
       ...filter,
       sexualOrientations: Array.isArray(filter.sexualOrientations)
         ? filter.sexualOrientations
-        : [filter.sexualOrientations],
+        : [filter.sexualOrientations].filter(
+            (so) => so !== null && so !== undefined,
+          ),
     }));
+
+    instance.filters = parsedFilters.map((filter) =>
+      plainToInstance(CreateFilterSchema, filter),
+    );
 
     return instance;
   }
