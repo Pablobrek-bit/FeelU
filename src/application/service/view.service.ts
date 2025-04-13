@@ -13,14 +13,6 @@ export class ViewService {
   }
 
   async registerView(userId: string, viewedUserId: string): Promise<void> {
-    const hasViewed = await this.viewRepository.hasUserViewed(
-      userId,
-      viewedUserId,
-    );
-    if (hasViewed) {
-      return;
-    }
-
     return this.viewRepository.registerView(userId, viewedUserId);
   }
 }
