@@ -4,10 +4,13 @@ import { UserRepository } from '../../../application/ports/user.repository';
 import { UserConverter } from '../converter/user-converter';
 import type { UserModel } from '../../../domain/model/user-model';
 import type { Gender, Role, SexualOrientation } from '@prisma/client';
+import type { FilterModel } from '../../../domain/model/filters-model';
+import { FilterConverter } from '../converter/filter-converter';
 
 @Injectable()
 export class PrismaUserRepository implements UserRepository {
   constructor(private readonly prisma: PrismaService) {}
+
   async existUserByEmail(email: string): Promise<boolean> {
     const count = await this.prisma.user.count({
       where: { email, deleted: false },
@@ -15,22 +18,22 @@ export class PrismaUserRepository implements UserRepository {
     return count > 0;
   }
 
-  async createUser(user: {
-    email: string;
-    password: string;
-    roleName: string;
-    verificationToken: string;
-  }): Promise<string> {
+  async createUser(
+    email: string,
+    password: string,
+    roleName: string,
+    verificationToken: string,
+  ): Promise<string> {
     const { id } = await this.prisma.user.create({
       data: {
-        email: user.email,
-        password: user.password,
+        email: email,
+        password: password,
         deletedAt: null,
         deleted: false,
-        verificationToken: user.verificationToken,
+        verificationToken: verificationToken,
         role: {
           connect: {
-            name: user.roleName,
+            name: roleName,
           },
         },
       },
@@ -203,6 +206,32 @@ export class PrismaUserRepository implements UserRepository {
           deletedAt: new Date(),
         },
       });
+    });
+  }
+
+  async existUserByIdAndGetYourFilters(
+    userId: string,
+  ): Promise<FilterModel[] | null> {
+    const user = await this.prisma.user.findFirst({
+      where: { id: userId, deleted: false },
+      include: {
+        filter: {
+          include: {
+            preferences: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    if (!user.filter) {
+      return null;
+    }
+    return user.filter.preferences.map((preference) => {
+      return FilterConverter.entityToModel(preference);
     });
   }
 }
