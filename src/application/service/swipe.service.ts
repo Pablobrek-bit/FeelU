@@ -1,5 +1,4 @@
 import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
-import { EntityNotFoundException } from '../../shared/exception/EntityNotFoundException';
 import type { UserModel } from '../../domain/model/user-model';
 import type { Gender, SexualOrientation } from '@prisma/client';
 import { UserService } from './user.service';
@@ -26,11 +25,10 @@ export class SwipeService {
   ) {}
 
   async findPotentialMatches(userId: string): Promise<UserModel[]> {
-    const user = await this.getUserOrThrow(userId);
+    const filters = await this.getUserOrThrow(userId);
 
-    const { genders, sexualOrientations } = this.extractFilterPreferences(
-      user.filters,
-    );
+    const { genders, sexualOrientations } =
+      this.extractFilterPreferences(filters);
 
     const viewedUserIds = await this.viewService.findPotentialMatchesIds(
       userId,
@@ -51,7 +49,6 @@ export class SwipeService {
     swipedUserId: string,
     liked: boolean,
   ): Promise<void> {
-    // trocar o tipo de erro
     if (userId === swipedUserId) {
       throw new ForbiddenException('You cannot swipe your own profile.');
     }
@@ -92,12 +89,8 @@ export class SwipeService {
     return await this.userService.findUsersByIds(likedProfilesIds);
   }
 
-  private async getUserOrThrow(userId: string): Promise<UserModel> {
-    const user = await this.userService.getUserById(userId);
-    if (!user) {
-      throw new EntityNotFoundException('User');
-    }
-    return user;
+  private async getUserOrThrow(userId: string): Promise<FilterModel[]> {
+    return await this.userService.verifyUserExistsAndGetYourFilters(userId);
   }
 
   private extractFilterPreferences(filters: FilterModel[] = []): {
