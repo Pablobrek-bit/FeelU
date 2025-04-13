@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UserRepository } from '../ports/user.repository';
 import { UserAlreadyExistsError } from '../../shared/exception/UserAlreadyExistsError';
 import { FilterService } from './filter.service';
@@ -14,6 +18,7 @@ import { EmailService } from './email.service';
 import { FirebaseStorageService } from './firebase-storage.service';
 import type { CreateUserSchema } from '../dto/user/create-user-schema';
 import { LikeService } from './like.service';
+import type { FilterModel } from '../../domain/model/filters-model';
 
 @Injectable()
 export class UserService {
@@ -40,12 +45,12 @@ export class UserService {
     const passwordHash = await this.hashPassword(userCreateData.password);
     const verificationToken = this.generateVerificationToken();
 
-    const userId = await this.userRepository.createUser({
-      email: userCreateData.email,
-      password: passwordHash,
-      roleName: 'USER',
+    const userId = await this.userRepository.createUser(
+      userCreateData.email,
+      passwordHash,
+      'USER',
       verificationToken,
-    });
+    );
 
     // const avatarUrl = await this.firebaseStorageService.uploadFile(avatar);
     const avatarUrl = 'https://example.com/avatar.jpg';
@@ -143,7 +148,7 @@ export class UserService {
 
     const userId = await this.userRepository.findUserByVerificationToken(token);
     if (!userId) {
-      throw new EntityNotFoundException('user');
+      throw new NotFoundException('user');
     }
     await this.userRepository.updateUserVerificationToken(userId);
   }
@@ -151,6 +156,17 @@ export class UserService {
   async softDelete(userId: string): Promise<void> {
     await this.ensureUserExists(userId);
     await this.userRepository.softDeleteUser(userId);
+  }
+
+  async verifyUserExistsAndGetYourFilters(
+    userId: string,
+  ): Promise<FilterModel[]> {
+    const filters =
+      await this.userRepository.existUserByIdAndGetYourFilters(userId);
+    if (!filters) {
+      throw new EntityNotFoundException('user');
+    }
+    return filters;
   }
 
   private async ensureUserDoesNotExist(email: string): Promise<void> {

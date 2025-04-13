@@ -1,15 +1,16 @@
 import type { Gender, Role, SexualOrientation } from '@prisma/client';
 import type { UserModel } from '../../domain/model/user-model';
+import type { FilterModel } from '../../domain/model/filters-model';
 
 export abstract class UserRepository {
   abstract existUserByEmail(email: string): Promise<boolean>;
 
-  abstract createUser(user: {
-    email: string;
-    password: string;
-    roleName: string;
-    verificationToken: string;
-  }): Promise<string>;
+  abstract createUser(
+    email: string,
+    password: string,
+    roleName: string,
+    verificationToken: string,
+  ): Promise<string>;
 
   abstract findUserByEmail(email: string): Promise<{
     id: string;
@@ -41,4 +42,8 @@ export abstract class UserRepository {
   abstract updateUserVerificationToken(userId: string): Promise<void>;
 
   abstract softDeleteUser(userId: string): Promise<void>;
+
+  abstract existUserByIdAndGetYourFilters(
+    userId: string,
+  ): Promise<FilterModel[] | null>;
 }
