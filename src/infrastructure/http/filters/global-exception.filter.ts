@@ -9,6 +9,7 @@ import {
   ForbiddenException,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { JsonWebTokenError } from '@nestjs/jwt';
@@ -16,8 +17,11 @@ import { AppException } from '../../../shared/exception/AppException';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(GlobalExceptionFilter.name);
+
   catch(exception: Error, host: ArgumentsHost): void {
-    console.log('exception', exception);
+    this.logger.error('Global exception filter', exception.stack);
+
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
