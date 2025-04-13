@@ -11,36 +11,31 @@ export class UpdateProfileSchema {
   @MinLength(3, { message: 'Bio must be at least 3 characters long' })
   @IsString()
   @IsOptional()
-  bio: string;
+  bio?: string;
 
   @Length(1, 1, { message: 'Emoji must be a single character' })
   @IsString()
   @IsOptional()
-  emoji: string;
+  emoji?: string;
 
   @IsBoolean()
   @IsOptional()
-  genderIsVisible: boolean;
+  genderIsVisible?: boolean;
 
   @IsBoolean()
   @IsOptional()
-  sexualOrientationVisible: boolean;
+  sexualOrientationVisible?: boolean;
 
   @IsString()
   @IsOptional()
-  course: string;
+  course?: string;
 
   @IsString()
   @IsOptional()
-  institution: string;
+  institution?: string;
 
   @IsString()
   @IsOptional()
   @IsUrl({}, { message: 'Invalid URL format' })
-  instagramUrl: string;
-
-  @IsString()
-  @IsOptional()
-  @IsUrl({}, { message: 'Invalid URL format' })
-  avatarUrl: string;
+  instagramUrl?: string;
 }
