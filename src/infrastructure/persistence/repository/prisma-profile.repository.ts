@@ -35,6 +35,7 @@ export class PrismaProfileRepository implements ProfileRepository {
   async updateProfile(
     profile: UpdateProfileSchema | undefined,
     userId: string,
+    avatarUrl?: string,
   ) {
     const updateData = {
       ...(profile?.bio && { bio: profile.bio }),
@@ -48,7 +49,7 @@ export class PrismaProfileRepository implements ProfileRepository {
       ...(profile?.course && { course: profile.course }),
       ...(profile?.institution && { institution: profile.institution }),
       ...(profile?.instagramUrl && { instagramUrl: profile.instagramUrl }),
-      ...(profile?.avatarUrl && { avatarUrl: profile.avatarUrl }),
+      ...(avatarUrl && { avatarUrl }),
     };
 
     if (Object.keys(updateData).length > 0) {
@@ -57,5 +58,14 @@ export class PrismaProfileRepository implements ProfileRepository {
         data: updateData,
       });
     }
+  }
+
+  async getAvatarUrl(userId: string): Promise<string | null> {
+    const profile = await this.prisma.profile.findUnique({
+      where: { userId, deleted: false },
+      select: { avatarUrl: true },
+    });
+
+    return profile?.avatarUrl || null;
   }
 }

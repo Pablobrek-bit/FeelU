@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ProfileRepository } from '../ports/profile.repository';
 import { CreateProfileSchema } from '../dto/profile/create-profile-schema';
 import type { UpdateProfileSchema } from '../dto/profile/update-profile-schema';
@@ -18,7 +18,18 @@ export class ProfileService {
   async updateProfile(
     profile: UpdateProfileSchema | undefined,
     userId: string,
+    avatarUrl?: string,
   ): Promise<void> {
-    await this.profileRepository.updateProfile(profile, userId);
+    await this.profileRepository.updateProfile(profile, userId, avatarUrl);
+  }
+
+  async getAvatarUrlByUserId(userId: string): Promise<string> {
+    const avatarUrl = await this.profileRepository.getAvatarUrl(userId);
+
+    if (!avatarUrl) {
+      throw new NotFoundException('Avatar not found');
+    }
+
+    return avatarUrl;
   }
 }

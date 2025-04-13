@@ -66,6 +66,7 @@ export class UserService {
   async updateUserDetails(
     userUpdateData: UpdateUserSchema,
     userId: string,
+    avatar: Express.Multer.File,
   ): Promise<void> {
     await this.ensureUserExists(userId);
 
@@ -74,7 +75,20 @@ export class UserService {
       await this.userRepository.updateUserPassword(userId, passwordHash);
     }
 
-    await this.profileService.updateProfile(userUpdateData.profile, userId);
+    let avatarUrl: string | undefined = undefined;
+
+    if (avatar) {
+      const fileUrl = await this.profileService.getAvatarUrlByUserId(userId);
+      await this.firebaseStorageService.deleteFile(fileUrl);
+
+      avatarUrl = await this.firebaseStorageService.uploadFile(avatar);
+    }
+
+    await this.profileService.updateProfile(
+      userUpdateData.profile,
+      userId,
+      avatarUrl,
+    );
     await this.filterService.updateFilter(userUpdateData.filters, userId);
   }
 

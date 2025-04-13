@@ -11,5 +11,8 @@ export abstract class ProfileRepository {
   abstract updateProfile(
     profile: UpdateProfileSchema | undefined,
     userId: string,
-  );
+    avatarUrl?: string,
+  ): Promise<void>;
+
+  abstract getAvatarUrl(userId: string): Promise<string | null>;
 }

@@ -201,64 +201,11 @@ export class UserController {
     await this.userService.createUser(userCreateData, avatar);
   }
 
-  @Post('login')
-  @HttpCode(HttpStatus.OK)
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        email: { type: 'string', format: 'email' },
-        password: { type: 'string' },
-      },
-    },
-  })
-  @ApiOperation({ summary: 'Login a user' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Login successful',
-    schema: { example: { token: 'jwt-token' } },
-  })
-  @ApiBadRequestResponse({
-    description: 'Invalid login credentials',
-    schema: {
-      example: {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: ['Invalid email format'],
-        timestamp: '2023-10-01T00:00:00.000Z',
-        path: '/user/login',
-      },
-    },
-  })
-  @ApiUnauthorizedResponse({
-    description: 'Invalid email or password',
-    schema: {
-      example: {
-        statusCode: HttpStatus.UNAUTHORIZED,
-        message: 'Invalid email or password',
-        timestamp: '2023-10-01T00:00:00.000Z',
-        path: '/user/login',
-      },
-    },
-  })
-  @ApiInternalServerErrorResponse({
-    description: 'Internal server error',
-    schema: {
-      example: {
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Internal server error',
-        timestamp: '2023-10-01T00:00:00.000Z',
-        path: '/user/login',
-      },
-    },
-  })
-  async login(@Body() loginData: LoginUserSchema): Promise<{ token: string }> {
-    return this.authService.login(loginData);
-  }
-
   @Put('update')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('avatar', multerConfig))
   @ApiBody({
     schema: {
       type: 'object',
@@ -346,11 +293,80 @@ export class UserController {
   async updateUser(
     @Req() req: Request,
     @Body()
-    userUpdateData: UpdateUserSchema,
+    body: any,
+    @UploadedFile() avatar: Express.Multer.File,
   ): Promise<void> {
-    const userId = req.user.sub;
+    console.log('body', body);
 
-    await this.userService.updateUserDetails(userUpdateData, userId);
+    const userUpdateData = UpdateUserSchema.fromRaw(body);
+
+    const errors = await validate(userUpdateData);
+    if (errors.length > 0) {
+      throw new BadRequestException(errors);
+    }
+
+    console.log('userUpdateData', userUpdateData);
+
+    console.log('avatar', avatar);
+
+    const userId = req.user.sub;
+    // https://storage.googleapis.com/slitree.appspot.com/b2b64632-c0dc-40cf-8399-f714c58341e8-foto_de_perfil.jpg
+
+    await this.userService.updateUserDetails(userUpdateData, userId, avatar);
+  }
+
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string', format: 'email' },
+        password: { type: 'string' },
+      },
+    },
+  })
+  @ApiOperation({ summary: 'Login a user' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Login successful',
+    schema: { example: { token: 'jwt-token' } },
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid login credentials',
+    schema: {
+      example: {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: ['Invalid email format'],
+        timestamp: '2023-10-01T00:00:00.000Z',
+        path: '/user/login',
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid email or password',
+    schema: {
+      example: {
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: 'Invalid email or password',
+        timestamp: '2023-10-01T00:00:00.000Z',
+        path: '/user/login',
+      },
+    },
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Internal server error',
+    schema: {
+      example: {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error',
+        timestamp: '2023-10-01T00:00:00.000Z',
+        path: '/user/login',
+      },
+    },
+  })
+  async login(@Body() loginData: LoginUserSchema): Promise<{ token: string }> {
+    return this.authService.login(loginData);
   }
 
   @Get()
