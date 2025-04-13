@@ -197,7 +197,7 @@ export class PrismaUserRepository implements UserRepository {
         },
       });
       await tx.profile.updateMany({
-        where: { userId: userId },
+        where: { userId },
         data: {
           deleted: true,
           deletedAt: new Date(),
