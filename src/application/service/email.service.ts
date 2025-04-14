@@ -12,9 +12,8 @@ export class EmailService {
     const { html, text } = this.buildVerificationEmailContent(verificationUrl);
 
     try {
-      // o from vai servir para o nodemailer saber de onde está vindo o e-mail, como por exe
       await this.transporter.sendMail({
-        from: 'Tindaria Team',
+        from: `Tindaria Team <${env.EMAIL_USER}>`,
         to: email,
         subject: 'Verifique seu endereço de e-mail no Tindaria',
         html,
