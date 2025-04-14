@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response, NextFunction } from 'express';
+import { env } from '../../../shared/utils/env.utils';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
@@ -22,7 +23,8 @@ export class AuthMiddleware implements NestMiddleware {
     const token = authHeader.split(' ')[1];
 
     const decoded = this.jwtService.verify(token, {
-      secret: process.env.JWT_SECRET ?? 'defaultSecret',
+      // secret: process.env.JWT_SECRET ?? 'defaultSecret',
+      secret: env.JWT_SECRET,
     });
     req['user'] = decoded;
     next();
