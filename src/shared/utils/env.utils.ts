@@ -1,11 +1,7 @@
+import { BadRequestException } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
-
-// EMAIL_HOST=smtp.gmail.com
-// EMAIL_PORT=587
-// EMAIL_USER=tindaria1206@gmail.com
-// EMAIL_PASSWORD=ewde nmty dhzy lvps
 
 interface EnvConfig {
   NODE_ENV: 'dev' | 'prod' | 'test';
@@ -49,7 +45,9 @@ const requiredEnvVariables: (keyof EnvConfig)[] = [
 
 for (const key of requiredEnvVariables) {
   if (!process.env[key]) {
-    throw new Error(`Missing required environment variable: ${key}`);
+    throw new BadRequestException(
+      `Missing required environment variable: ${key}`,
+    );
   }
 }
 
