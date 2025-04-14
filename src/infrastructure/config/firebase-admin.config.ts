@@ -1,12 +1,13 @@
 import admin from 'firebase-admin';
 import * as fs from 'fs';
 import { env } from '../../shared/utils/env.utils';
+import { BadRequestException } from '@nestjs/common';
 
 const serviceAccountPath = env.FIREBASE_CREDENTIALS;
 
 if (!serviceAccountPath || !fs.existsSync(serviceAccountPath)) {
-  throw new Error(
-    `Arquivo de credenciais não encontrado: ${serviceAccountPath}`,
+  throw new BadRequestException(
+    `Credentials file not found: ${serviceAccountPath}`,
   );
 }
 
