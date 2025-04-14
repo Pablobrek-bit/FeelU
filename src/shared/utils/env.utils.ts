@@ -2,6 +2,11 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
+// EMAIL_HOST=smtp.gmail.com
+// EMAIL_PORT=587
+// EMAIL_USER=tindaria1206@gmail.com
+// EMAIL_PASSWORD=ewde nmty dhzy lvps
+
 interface EnvConfig {
   NODE_ENV: 'dev' | 'prod' | 'test';
   PORT: number;
@@ -15,6 +20,11 @@ interface EnvConfig {
   JWT_EXPIRATION_TIME: string;
   FIREBASE_CREDENTIALS: string;
   FIREBASE_BUCKET_URL: string;
+  EMAIL_HOST: string;
+  EMAIL_PORT: number;
+  EMAIL_USER: string;
+  EMAIL_PASSWORD: string;
+  APP_URL: string;
 }
 
 const requiredEnvVariables: (keyof EnvConfig)[] = [
@@ -30,6 +40,11 @@ const requiredEnvVariables: (keyof EnvConfig)[] = [
   'JWT_EXPIRATION_TIME',
   'FIREBASE_CREDENTIALS',
   'FIREBASE_BUCKET_URL',
+  'EMAIL_HOST',
+  'EMAIL_PORT',
+  'EMAIL_USER',
+  'EMAIL_PASSWORD',
+  'APP_URL',
 ];
 
 for (const key of requiredEnvVariables) {
@@ -51,6 +66,11 @@ const env: EnvConfig = {
   JWT_EXPIRATION_TIME: process.env.JWT_EXPIRATION_TIME || '3600s',
   FIREBASE_CREDENTIALS: process.env.FIREBASE_CREDENTIALS!,
   FIREBASE_BUCKET_URL: process.env.FIREBASE_BUCKET_URL!,
+  EMAIL_HOST: process.env.EMAIL_HOST!,
+  EMAIL_PORT: parseInt(process.env.EMAIL_PORT || '587', 10),
+  EMAIL_USER: process.env.EMAIL_USER!,
+  APP_URL: process.env.APP_URL!,
+  EMAIL_PASSWORD: process.env.EMAIL_PASSWORD!,
 };
 
 export { env };
