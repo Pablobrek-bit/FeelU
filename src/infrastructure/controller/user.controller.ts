@@ -67,14 +67,14 @@ export class UserController {
             emoji: { type: 'string', maxLength: 1 },
             gender: {
               type: 'string',
-              enum: ['HOMEM', 'MULHER', 'NAO_BINARIO'],
+              enum: ['MAN', 'WOMAN', 'NON_BINARY'],
             },
-            genderIsVisible: { type: 'boolean' },
+            genderIsVisible: { type: 'string' },
             sexualOrientation: {
               type: 'string',
-              enum: ['HETERO', 'HOMOSSEXUAL', 'BI', 'PAN'],
+              enum: ['HETEROSEXUAL', 'HOMOSEXUAL', 'BISEXUAL', 'PANSEXUAL'],
             },
-            sexualOrientationVisible: { type: 'boolean' },
+            sexualOrientationVisible: { type: 'string' },
             course: { type: 'string' },
             institution: { type: 'string' },
             instagramUrl: { type: 'string', format: 'url' },
@@ -87,13 +87,13 @@ export class UserController {
             properties: {
               gender: {
                 type: 'string',
-                enum: ['HOMEM', 'MULHER', 'NAO_BINARIO'],
+                enum: ['MAN', 'WOMAN', 'NON_BINARY'],
               },
               sexualOrientations: {
                 type: 'array',
                 items: {
                   type: 'string',
-                  enum: ['HETERO', 'HOMOSSEXUAL', 'BI', 'PAN'],
+                  enum: ['HETEROSEXUAL', 'HOMOSEXUAL', 'BISEXUAL', 'PANSEXUAL'],
                 },
               },
             },
@@ -232,13 +232,13 @@ export class UserController {
               gender: {
                 type: 'string',
                 format: 'string',
-                enum: ['HOMEM', 'MULHER', 'NAO_BINARIO'],
+                enum: ['MAN', 'WOMAN', 'NON_BINARY'],
               },
               sexualOrientations: {
                 type: 'array',
                 items: {
                   type: 'string',
-                  enum: ['HETERO', 'HOMOSSEXUAL', 'BI', 'PAN'],
+                  enum: ['HETEROSEXUAL', 'HOMOSEXUAL', 'BISEXUAL', 'PANSEXUAL'],
                 },
               },
             },
@@ -296,8 +296,6 @@ export class UserController {
     body: any,
     @UploadedFile() avatar: Express.Multer.File,
   ): Promise<void> {
-    console.log('body', body);
-
     const userUpdateData = UpdateUserSchema.fromRaw(body);
 
     const errors = await validate(userUpdateData);
@@ -305,13 +303,7 @@ export class UserController {
       throw new BadRequestException(errors);
     }
 
-    console.log('userUpdateData', userUpdateData);
-
-    console.log('avatar', avatar);
-
     const userId = req.user.sub;
-    // https://storage.googleapis.com/slitree.appspot.com/b2b64632-c0dc-40cf-8399-f714c58341e8-foto_de_perfil.jpg
-
     await this.userService.updateUserDetails(userUpdateData, userId, avatar);
   }
 
@@ -382,8 +374,8 @@ export class UserController {
         email: 'user@example.com',
         avatarUrl: 'https://example.com/avatar.jpg',
         age: 25,
-        gender: 'HOMEM',
-        sexualOrientation: 'HETERO',
+        gender: 'MAN',
+        sexualOrientation: 'HETEROSEXUAL',
         bio: 'Hello, I am a user!',
         emoji: '😊',
         course: 'Computer Science',
@@ -391,12 +383,12 @@ export class UserController {
         instagramUrl: 'https://instagram.com/user',
         filters: [
           {
-            gender: 'HOMEM',
-            sexualOrientations: ['HETERO', 'BI'],
+            gender: 'MAN',
+            sexualOrientations: ['HETEROSEXUAL', 'BISEXUAL'],
           },
           {
-            gender: 'MULHER',
-            sexualOrientations: ['HETERO', 'PAN'],
+            gender: 'WOMAN',
+            sexualOrientations: ['HETEROSEXUAL', 'PANSEXUAL'],
           },
         ],
       },

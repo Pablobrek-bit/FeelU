@@ -111,14 +111,14 @@ model Role {
 }
 
 enum Gender {
-  HOMEM
-  MULHER
-  NAO_BINARIO
+  MAN
+  WOMAN
+  NON_BINARY
 }
 
 enum SexualOrientation {
-  HETERO
-  HOMOSSEXUAL
-  BI
-  PAN
+  HETEROSEXUAL
+  HOMOSEXUAL
+  BISEXUAL
+  PANSEXUAL
 }
