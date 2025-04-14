@@ -14,3 +14,7 @@ export class CreateFilterSchema {
   })
   sexualOrientations: SexualOrientation[];
 }
+
+// [{"gender":"HOMEM","sexualOrientations":["HETERO","BI","PAN","HOMOSSEXUAL"]},{"gender":"MULHER","sexualOrientations":["HETERO","BI","PAN","HOMOSSEXUAL"]}];
+
+// [[{"gender":"HOMEM","sexualOrientations":["HETERO","BI"]},{"gender":"MULHER","sexualOrientations":["HETERO","BI","HOMOSSEXUAL"]}]]

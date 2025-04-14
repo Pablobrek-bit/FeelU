@@ -52,7 +52,7 @@ export class PrismaUserRepository implements UserRepository {
     role: Role;
   } | null> {
     return this.prisma.user.findUnique({
-      where: { email, deleted: false },
+      where: { email, deleted: false, emailVerified: true },
       select: { id: true, email: true, password: true, role: true },
     });
   }
