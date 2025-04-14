@@ -15,6 +15,7 @@ import {
 import { Request, Response } from 'express';
 import { JsonWebTokenError } from '@nestjs/jwt';
 import { AppException } from '../../../shared/exception/AppException';
+import type { ResponseBodyType } from '../../../shared/exception/ResponseBody';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
@@ -32,7 +33,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let responseBody: any;
+    let responseBody: ResponseBodyType<any> = {
+      statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      message: 'Internal server error',
+      timestamp: new Date().toISOString(),
+      path: request.url,
+    };
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
@@ -42,11 +48,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         exception instanceof BadRequestException &&
         typeof exceptionResponse === 'object'
       ) {
-        responseBody = exceptionResponse;
+        responseBody.message = exceptionResponse;
+        responseBody.statusCode = status;
         if (typeof responseBody.statusCode === 'undefined') {
           responseBody.statusCode = status;
         }
-        console.log(responseBody);
       } else {
         const message =
           typeof exceptionResponse === 'string'
