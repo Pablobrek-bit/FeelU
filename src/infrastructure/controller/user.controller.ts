@@ -56,8 +56,12 @@ export class UserController {
     schema: {
       type: 'object',
       properties: {
-        email: { type: 'string', format: 'email' },
-        password: { type: 'string' },
+        email: {
+          type: 'string',
+          format: 'email',
+          example: 'example@gmail.com',
+        },
+        password: { type: 'string', example: 'password123' },
         profile: {
           type: 'object',
           properties: {
