@@ -21,6 +21,7 @@ import type { UpdateUserSchema } from '../../../src/application/dto/user/update-
 import { EntityNotFoundException } from '../../../src/shared/exception/EntityNotFoundException';
 import type { UserModel } from '../../../src/domain/model/user-model';
 import type { Gender, SexualOrientation } from '@prisma/client';
+import { NotFoundException } from '@nestjs/common';
 
 describe('UserService', () => {
   let service: UserService;
@@ -556,6 +557,50 @@ describe('UserService', () => {
         limit,
       );
       expect(result).toEqual(mockPotencialMatches);
+    });
+  });
+
+  describe('verifyEmail', () => {
+    it('should verify email', async () => {
+      // Arrange
+      const token = 'verification-token';
+      const userId = 'user-id';
+      (
+        mockUserRepository.findUserByVerificationToken as jest.Mock
+      ).mockResolvedValue(userId);
+      (
+        mockUserRepository.updateUserVerificationToken as jest.Mock
+      ).mockResolvedValue(undefined);
+
+      // Act
+      await service.verifyEmail(token);
+
+      // Assert
+      expect(
+        mockUserRepository.findUserByVerificationToken,
+      ).toHaveBeenCalledWith(token);
+      expect(
+        mockUserRepository.updateUserVerificationToken,
+      ).toHaveBeenCalledWith(userId);
+    });
+
+    it('should throw an error if user is not found', async () => {
+      // Arrange
+      const token = 'invalid-token';
+      (
+        mockUserRepository.findUserByVerificationToken as jest.Mock
+      ).mockResolvedValue(null);
+
+      // Act & Assert
+      await expect(service.verifyEmail(token)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(
+        mockUserRepository.findUserByVerificationToken,
+      ).toHaveBeenCalledWith(token);
+      expect(
+        mockUserRepository.updateUserVerificationToken,
+      ).not.toHaveBeenCalled();
     });
   });
 });
