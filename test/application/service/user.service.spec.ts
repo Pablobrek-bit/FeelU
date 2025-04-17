@@ -429,4 +429,62 @@ describe('UserService', () => {
       expect(mockUserRepository.getById).toHaveBeenCalledWith(userId);
     });
   });
+
+  describe('changeUserRole', () => {
+    it('should change user role', async () => {
+      // Arrange
+      const userId = '123';
+      const roleName = 'admin';
+      (mockUserRepository.existUserById as jest.Mock).mockResolvedValue({
+        id: userId,
+      });
+      (mockRoleService.existRoleByName as jest.Mock).mockResolvedValue({
+        id: 'role-id',
+      });
+
+      // Act
+      await service.changeUserRole(userId, roleName);
+
+      // Assert
+      expect(mockUserRepository.existUserById).toHaveBeenCalledWith(userId);
+      expect(mockRoleService.existRoleByName).toHaveBeenCalledWith(roleName);
+      expect(mockUserRepository.updateUserRole).toHaveBeenCalledWith(
+        userId,
+        roleName,
+      );
+    });
+
+    it('should throw an error if user does not exist', async () => {
+      // Arrange
+      const userId = 'non-existing-id';
+      const roleName = 'admin';
+      (mockUserRepository.existUserById as jest.Mock).mockResolvedValue(null);
+
+      // Act & Assert
+      await expect(service.changeUserRole(userId, roleName)).rejects.toThrow(
+        EntityNotFoundException,
+      );
+      expect(mockUserRepository.existUserById).toHaveBeenCalledWith(userId);
+      expect(mockRoleService.existRoleByName).toHaveBeenCalledWith(roleName);
+      expect(mockUserRepository.updateUserRole).not.toHaveBeenCalled();
+    });
+
+    it('should throw an error if role does not exist', async () => {
+      // Arrange
+      const userId = '123';
+      const roleName = 'non-existing-role';
+      (mockUserRepository.existUserById as jest.Mock).mockResolvedValue({
+        id: userId,
+      });
+      (mockRoleService.existRoleByName as jest.Mock).mockResolvedValue(null);
+
+      // Act & Assert
+      await expect(service.changeUserRole(userId, roleName)).rejects.toThrow(
+        EntityNotFoundException,
+      );
+      expect(mockUserRepository.existUserById).toHaveBeenCalledWith(userId);
+      expect(mockRoleService.existRoleByName).toHaveBeenCalledWith(roleName);
+      expect(mockUserRepository.updateUserRole).not.toHaveBeenCalled();
+    });
+  });
 });
