@@ -19,6 +19,8 @@ import type { CreateUserSchema } from '../../../src/application/dto/user/create-
 import { UserAlreadyExistsError } from '../../../src/shared/exception/UserAlreadyExistsError';
 import type { UpdateUserSchema } from '../../../src/application/dto/user/update-user-schema';
 import { EntityNotFoundException } from '../../../src/shared/exception/EntityNotFoundException';
+import type { UserModel } from '../../../src/domain/model/user-model';
+import type { Gender, SexualOrientation } from '@prisma/client';
 
 describe('UserService', () => {
   let service: UserService;
@@ -485,6 +487,75 @@ describe('UserService', () => {
       expect(mockUserRepository.existUserById).toHaveBeenCalledWith(userId);
       expect(mockRoleService.existRoleByName).toHaveBeenCalledWith(roleName);
       expect(mockUserRepository.updateUserRole).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('findPotentialMatches', () => {
+    it('should return potential matches', async () => {
+      // Arrange
+      const userId = '123';
+      const viewedUserIds = ['456', '789'];
+      const genders: Gender[] = ['MAN', 'WOMAN'];
+      const sexualOrientations: SexualOrientation[] = [
+        'HETEROSEXUAL',
+        'BISEXUAL',
+      ];
+      const limit = 10;
+
+      const mockPotencialMatches: UserModel[] = [
+        {
+          id: '456',
+          name: 'Jane Doe',
+          age: 30,
+          avatarUrl: 'https://example.com/avatar.jpg',
+          bio: 'Hello, world!',
+          gender: 'WOMAN',
+          sexualOrientation: 'HETEROSEXUAL',
+          showGender: true,
+          showSexualOrientation: true,
+          course: 'Computer Science',
+          institution: 'University of Example',
+          emoji: '👩‍💻',
+          instagramUrl: 'https://instagram.com/example',
+        },
+        {
+          id: '789',
+          name: 'John Smith',
+          age: 28,
+          avatarUrl: 'https://example.com/avatar2.jpg',
+          bio: 'Nice to meet you!',
+          gender: 'MAN',
+          sexualOrientation: 'HETEROSEXUAL',
+          showGender: true,
+          showSexualOrientation: true,
+          course: 'Mathematics',
+          institution: 'University of Example 2',
+          emoji: '👨‍💻',
+          instagramUrl: 'https://instagram.com/example2',
+        },
+      ];
+      (mockUserRepository.findPotentialMatches as jest.Mock).mockResolvedValue(
+        mockPotencialMatches,
+      );
+
+      // Act
+      const result = await service.findPotentialMatches(
+        userId,
+        viewedUserIds,
+        genders,
+        sexualOrientations,
+        limit,
+      );
+
+      // Assert
+      expect(mockUserRepository.findPotentialMatches).toHaveBeenCalledWith(
+        userId,
+        viewedUserIds,
+        genders,
+        sexualOrientations,
+        limit,
+      );
+      expect(result).toEqual(mockPotencialMatches);
     });
   });
 });
