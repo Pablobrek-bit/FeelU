@@ -603,4 +603,37 @@ describe('UserService', () => {
       ).not.toHaveBeenCalled();
     });
   });
+
+  describe('softDelete', () => {
+    it('should soft delete a user', async () => {
+      // Arrange
+      const userId = '123';
+      (mockUserRepository.existUserById as jest.Mock).mockResolvedValue({
+        id: userId,
+      });
+      (mockUserRepository.softDeleteUser as jest.Mock).mockResolvedValue(
+        undefined,
+      );
+
+      // Act
+      await service.softDelete(userId);
+
+      // Assert
+      expect(mockUserRepository.existUserById).toHaveBeenCalledWith(userId);
+      expect(mockUserRepository.softDeleteUser).toHaveBeenCalledWith(userId);
+    });
+
+    it('should throw an error if user does not exist', async () => {
+      // Arrange
+      const userId = 'non-existent-user-id';
+      (mockUserRepository.existUserById as jest.Mock).mockResolvedValue(null);
+
+      // Act & Assert
+      await expect(service.softDelete(userId)).rejects.toThrow(
+        EntityNotFoundException,
+      );
+      expect(mockUserRepository.existUserById).toHaveBeenCalledWith(userId);
+      expect(mockUserRepository.softDeleteUser).not.toHaveBeenCalled();
+    });
+  });
 });
