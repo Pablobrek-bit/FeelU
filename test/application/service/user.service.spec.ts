@@ -401,4 +401,32 @@ describe('UserService', () => {
       );
     });
   });
+
+  describe('getUserById', () => {
+    it('should return user details by ID', async () => {
+      // Assert
+      const userId = '123';
+      const expectedUser = { id: userId, name: 'John Doe' };
+      (mockUserRepository.getById as jest.Mock).mockResolvedValue(expectedUser);
+
+      // Act
+      const result = await service.getUserById(userId);
+
+      // Assert
+      expect(result).toEqual(expectedUser);
+      expect(mockUserRepository.getById).toHaveBeenCalledWith(userId);
+    });
+
+    it('should throw an error if user does not exist', async () => {
+      // Arrange
+      const userId = 'non-existing-id';
+      (mockUserRepository.getById as jest.Mock).mockResolvedValue(null);
+
+      // Act & Assert
+      await expect(service.getUserById(userId)).rejects.toThrow(
+        EntityNotFoundException,
+      );
+      expect(mockUserRepository.getById).toHaveBeenCalledWith(userId);
+    });
+  });
 });
