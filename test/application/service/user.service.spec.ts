@@ -22,6 +22,7 @@ import { EntityNotFoundException } from '../../../src/shared/exception/EntityNot
 import type { UserModel } from '../../../src/domain/model/user-model';
 import type { Gender, SexualOrientation } from '@prisma/client';
 import { NotFoundException } from '@nestjs/common';
+import type { FilterModel } from '../../../src/domain/model/filters-model';
 
 describe('UserService', () => {
   let service: UserService;
@@ -634,6 +635,67 @@ describe('UserService', () => {
       );
       expect(mockUserRepository.existUserById).toHaveBeenCalledWith(userId);
       expect(mockUserRepository.softDeleteUser).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('verifyUserExistsAndGetYourFilters', () => {
+    it('should return user filters if user exists', async () => {
+      // Arrange
+      const userId = '123';
+      const mockFilters: FilterModel[] = [
+        {
+          gender: 'MAN',
+          sexualOrientation: 'HETEROSEXUAL',
+        },
+        {
+          gender: 'WOMAN',
+          sexualOrientation: 'BISEXUAL',
+        },
+      ];
+      (
+        mockUserRepository.existUserByIdAndGetYourFilters as jest.Mock
+      ).mockResolvedValue(mockFilters);
+
+      // Act
+      const result = await service.verifyUserExistsAndGetYourFilters(userId);
+
+      // Assert
+      expect(
+        mockUserRepository.existUserByIdAndGetYourFilters,
+      ).toHaveBeenCalledWith(userId);
+      expect(result).toEqual(mockFilters);
+    });
+
+    it('should throw an error if user does not exist', async () => {
+      // Arrange
+      const userId = 'non-existent-user-id';
+      (
+        mockUserRepository.existUserByIdAndGetYourFilters as jest.Mock
+      ).mockResolvedValue(null);
+
+      // Act & Assert
+      await expect(
+        service.verifyUserExistsAndGetYourFilters(userId),
+      ).rejects.toThrow(EntityNotFoundException);
+      expect(
+        mockUserRepository.existUserByIdAndGetYourFilters,
+      ).toHaveBeenCalledWith(userId);
+    });
+
+    it('should throw an error if filters are not found', async () => {
+      const userId = '123';
+      const mockFilters = null;
+      (
+        mockUserRepository.existUserByIdAndGetYourFilters as jest.Mock
+      ).mockResolvedValue(mockFilters);
+
+      // Act & Assert
+      await expect(
+        service.verifyUserExistsAndGetYourFilters(userId),
+      ).rejects.toThrow(EntityNotFoundException);
+      expect(
+        mockUserRepository.existUserByIdAndGetYourFilters,
+      ).toHaveBeenCalledWith(userId);
     });
   });
 });
