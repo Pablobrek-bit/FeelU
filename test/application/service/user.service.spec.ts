@@ -17,6 +17,8 @@ import { createMockRoleService } from '../../mocks/role.service.mock';
 import { createMockUserRepository } from '../../mocks/user.repository.mock';
 import type { CreateUserSchema } from '../../../src/application/dto/user/create-user-schema';
 import { UserAlreadyExistsError } from '../../../src/shared/exception/UserAlreadyExistsError';
+import type { UpdateUserSchema } from '../../../src/application/dto/user/update-user-schema';
+import { EntityNotFoundException } from '../../../src/shared/exception/EntityNotFoundException';
 
 describe('UserService', () => {
   let service: UserService;
@@ -56,6 +58,29 @@ describe('UserService', () => {
       sexualOrientation: 'HETEROSEXUAL',
       sexualOrientationVisible: true,
       instagramUrl: 'https://instagram.com/example',
+    },
+  };
+
+  const userUpdateData: UpdateUserSchema = {
+    filters: [
+      {
+        gender: 'WOMAN',
+        sexualOrientations: ['HETEROSEXUAL'],
+      },
+      {
+        gender: 'MAN',
+        sexualOrientations: ['HETEROSEXUAL'],
+      },
+    ],
+    password: 'newpassword123',
+    profile: {
+      bio: 'Updated bio',
+      course: 'Updated course',
+      emoji: '👩‍💻',
+      genderIsVisible: false,
+      instagramUrl: 'https://instagram.com/updated',
+      institution: 'Updated University',
+      sexualOrientationVisible: false,
     },
   };
 
@@ -127,7 +152,6 @@ describe('UserService', () => {
   describe('createUser', () => {
     it('should create a user with a profile and filters', async () => {
       // Arrange
-
       const mockAvatarUrl = 'https://example.com/avatar.jpg';
       (mockFirebaseStorageService.uploadFile as jest.Mock).mockResolvedValue(
         mockAvatarUrl,
@@ -174,6 +198,207 @@ describe('UserService', () => {
       expect(mockEmailService.sendVerificationEmail).not.toHaveBeenCalled();
       expect(mockUserRepository.createUser).not.toHaveBeenCalled();
       expect(mockFirebaseStorageService.uploadFile).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('updateUserDetails', () => {
+    it('should update user details', async () => {
+      // Arrange
+      const userId = '123';
+      (mockUserRepository.existUserById as jest.Mock).mockResolvedValue({
+        id: userId,
+      });
+      (mockFirebaseStorageService.uploadFile as jest.Mock).mockResolvedValue(
+        'https://example.com/new-avatar.jpg',
+      );
+      (mockFirebaseStorageService.deleteFile as jest.Mock).mockResolvedValue(
+        true,
+      );
+      (mockProfileService.getAvatarUrlByUserId as jest.Mock).mockResolvedValue(
+        'https://example.com/old-avatar.jpg',
+      );
+
+      // Act
+      await service.updateUserDetails(userUpdateData, userId, mockAvatar);
+
+      // Assert
+      expect(mockUserRepository.existUserById).toHaveBeenCalledWith(userId);
+      expect(mockUserRepository.updateUserPassword).toHaveBeenCalledWith(
+        userId,
+        expect.any(String),
+      );
+      expect(mockFirebaseStorageService.deleteFile).toHaveBeenCalledWith(
+        'https://example.com/old-avatar.jpg',
+      );
+      expect(mockProfileService.updateProfile).toHaveBeenCalledWith(
+        userUpdateData.profile,
+        userId,
+        'https://example.com/new-avatar.jpg',
+      );
+      expect(mockFilterService.updateFilter).toHaveBeenCalledWith(
+        userUpdateData.filters,
+        userId,
+      );
+      expect(mockFirebaseStorageService.uploadFile).toHaveBeenCalledWith(
+        mockAvatar,
+      );
+    });
+
+    it('should throw an error if user does not exist', async () => {
+      // Arrange
+      (mockUserRepository.existUserById as jest.Mock).mockResolvedValue(null);
+
+      const userId = 'non-existing-id';
+
+      // Act & Assert
+      await expect(
+        service.updateUserDetails(userUpdateData, userId, mockAvatar),
+      ).rejects.toThrow(EntityNotFoundException);
+      expect(mockUserRepository.existUserById).toHaveBeenCalledWith(userId);
+      expect(mockUserRepository.updateUserPassword).not.toHaveBeenCalled();
+      expect(mockFirebaseStorageService.deleteFile).not.toHaveBeenCalled();
+      expect(mockProfileService.updateProfile).not.toHaveBeenCalled();
+      expect(mockFilterService.updateFilter).not.toHaveBeenCalled();
+      expect(mockFirebaseStorageService.uploadFile).not.toHaveBeenCalled();
+    });
+
+    it('should update user details without changing password or avatar', async () => {
+      // Arrange
+      const userId = '123';
+      (mockUserRepository.existUserById as jest.Mock).mockResolvedValue({
+        id: userId,
+      });
+      (mockFirebaseStorageService.uploadFile as jest.Mock).mockResolvedValue(
+        'https://example.com/new-avatar.jpg',
+      );
+      (mockFirebaseStorageService.deleteFile as jest.Mock).mockResolvedValue(
+        true,
+      );
+      (mockProfileService.getAvatarUrlByUserId as jest.Mock).mockResolvedValue(
+        'https://example.com/old-avatar.jpg',
+      );
+      userUpdateData.password = undefined;
+      userUpdateData.filters = undefined;
+
+      // Act
+      await service.updateUserDetails(userUpdateData, userId);
+
+      // Assert
+      expect(mockUserRepository.existUserById).toHaveBeenCalledWith(userId);
+      expect(mockUserRepository.updateUserPassword).not.toHaveBeenCalled();
+      expect(mockFirebaseStorageService.deleteFile).not.toHaveBeenCalled();
+      expect(mockProfileService.updateProfile).toHaveBeenCalledWith(
+        userUpdateData.profile,
+        userId,
+        undefined,
+      );
+      expect(mockFilterService.updateFilter).toHaveBeenCalledWith(
+        userUpdateData.filters,
+        userId,
+      );
+    });
+
+    it('should update user details without changing avatar', async () => {
+      // Arrange
+      const userId = '123';
+      (mockUserRepository.existUserById as jest.Mock).mockResolvedValue({
+        id: userId,
+      });
+      (mockFirebaseStorageService.uploadFile as jest.Mock).mockResolvedValue(
+        'https://example.com/new-avatar.jpg',
+      );
+      (mockFirebaseStorageService.deleteFile as jest.Mock).mockResolvedValue(
+        true,
+      );
+      (mockProfileService.getAvatarUrlByUserId as jest.Mock).mockResolvedValue(
+        'https://example.com/old-avatar.jpg',
+      );
+      userUpdateData.password = undefined;
+      userUpdateData.filters = undefined;
+
+      userUpdateData.profile = {
+        ...userUpdateData.profile,
+        emoji: undefined,
+      };
+      // Act
+      await service.updateUserDetails(userUpdateData, userId);
+
+      // Assert
+
+      expect(mockUserRepository.existUserById).toHaveBeenCalledWith(userId);
+      expect(mockUserRepository.updateUserPassword).not.toHaveBeenCalled();
+      expect(mockFirebaseStorageService.deleteFile).not.toHaveBeenCalled();
+      expect(mockProfileService.updateProfile).toHaveBeenCalledWith(
+        userUpdateData.profile,
+        userId,
+        undefined,
+      );
+      expect(mockFilterService.updateFilter).toHaveBeenCalledWith(
+        userUpdateData.filters,
+        userId,
+      );
+    });
+
+    it('should update user details without changing password and filters', async () => {
+      // Arrange
+      const userId = '123';
+      (mockUserRepository.existUserById as jest.Mock).mockResolvedValue({
+        id: userId,
+      });
+      (mockFirebaseStorageService.uploadFile as jest.Mock).mockResolvedValue(
+        'https://example.com/new-avatar.jpg',
+      );
+      (mockFirebaseStorageService.deleteFile as jest.Mock).mockResolvedValue(
+        true,
+      );
+      (mockProfileService.getAvatarUrlByUserId as jest.Mock).mockResolvedValue(
+        'https://example.com/old-avatar.jpg',
+      );
+      userUpdateData.password = undefined;
+      userUpdateData.filters = undefined;
+
+      // Act
+      await service.updateUserDetails(userUpdateData, userId);
+
+      // Assert
+      expect(mockUserRepository.existUserById).toHaveBeenCalledWith(userId);
+      expect(mockUserRepository.updateUserPassword).not.toHaveBeenCalled();
+      expect(mockProfileService.updateProfile).toHaveBeenCalledWith(
+        userUpdateData.profile,
+        userId,
+        undefined,
+      );
+    });
+
+    it('should update user details without changing the profile', async () => {
+      // Arrange
+      const userId = '123';
+      (mockUserRepository.existUserById as jest.Mock).mockResolvedValue({
+        id: userId,
+      });
+      (mockFirebaseStorageService.uploadFile as jest.Mock).mockResolvedValue(
+        'https://example.com/new-avatar.jpg',
+      );
+      (mockFirebaseStorageService.deleteFile as jest.Mock).mockResolvedValue(
+        true,
+      );
+      (mockProfileService.getAvatarUrlByUserId as jest.Mock).mockResolvedValue(
+        'https://example.com/old-avatar.jpg',
+      );
+      userUpdateData.password = undefined;
+      userUpdateData.profile = undefined;
+
+      // Act
+      await service.updateUserDetails(userUpdateData, userId);
+
+      // Assert
+      expect(mockUserRepository.existUserById).toHaveBeenCalledWith(userId);
+      expect(mockUserRepository.updateUserPassword).not.toHaveBeenCalled();
+      expect(mockProfileService.updateProfile).toHaveBeenCalledWith(
+        userUpdateData.profile,
+        userId,
+        undefined,
+      );
     });
   });
 });
