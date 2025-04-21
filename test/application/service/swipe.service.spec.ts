@@ -8,6 +8,7 @@ import { createMockLikeService } from '../../mocks/like.service.mock';
 import { createMockMatchService } from '../../mocks/match.service.mock';
 import { createMockUserService } from '../../mocks/user.service.mock';
 import { createMockViewService } from '../../mocks/view.service.mock';
+import type { FilterModel } from '../../../src/domain/model/filters-model';
 
 describe('SwipeService', () => {
   let service: SwipeService;
@@ -16,6 +17,17 @@ describe('SwipeService', () => {
   let mockViewService: ReturnType<typeof createMockViewService>;
   let mockMatchService: ReturnType<typeof createMockMatchService>;
   let mockLikeService: ReturnType<typeof createMockLikeService>;
+
+  const mockFilters: FilterModel[] = [
+    {
+      gender: 'WOMAN',
+      sexualOrientation: 'HETEROSEXUAL',
+    },
+    {
+      gender: 'MAN',
+      sexualOrientation: 'HETEROSEXUAL',
+    },
+  ];
 
   beforeEach(async () => {
     mockUserService = createMockUserService();
@@ -40,5 +52,50 @@ describe('SwipeService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('findPotentialMatches', () => {
+    it('should be can find potential matches', async () => {
+      // Arrange
+      const userId = 'userId';
+      (
+        createMockUserService().verifyUserExistsAndGetYourFilters as jest.Mock
+      ).mockResolvedValue(mockFilters);
+      (
+        createMockViewService().findPotentialMatchesIds as jest.Mock
+      ).mockResolvedValue(['viewedUserId1', 'viewedUserId2']);
+      (
+        createMockUserService().findPotentialMatches as jest.Mock
+      ).mockResolvedValue([
+        { id: 'user1', name: 'User 1' },
+        { id: 'user2', name: 'User 2' },
+      ]);
+
+      // Act
+      const potentialMatches = await service.findPotentialMatches(userId);
+
+      // Assert
+      expect(potentialMatches).toEqual([
+        { id: 'user1', name: 'User 1' },
+        { id: 'user2', name: 'User 2' },
+      ]);
+      expect(
+        createMockUserService().verifyUserExistsAndGetYourFilters,
+      ).toHaveBeenCalled();
+      expect(
+        createMockViewService().findPotentialMatchesIds,
+      ).toHaveBeenCalledWith(userId, service['POTENTIAL_MATCH_LIMIT']);
+      expect(createMockUserService().findPotentialMatches).toHaveBeenCalledWith(
+        userId,
+        ['viewedUserId1', 'viewedUserId2'],
+        ['WOMAN', 'MAN'],
+        ['HETEROSEXUAL'],
+        service['POTENTIAL_MATCH_LIMIT'],
+      );
+      expect(createMockUserService().findUsersByIds).toHaveBeenCalledWith([
+        'user1',
+        'user2',
+      ]);
+    });
   });
 });

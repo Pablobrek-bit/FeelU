@@ -52,8 +52,8 @@ export class UserService {
       verificationToken,
     );
 
-    // const avatarUrl = await this.firebaseStorageService.uploadFile(avatar);
-    const avatarUrl = 'https://example.com/avatar.jpg';
+    const avatarUrl = await this.firebaseStorageService.uploadFile(avatar);
+    // const avatarUrl = 'https://example.com/avatar.jpg';
 
     await this.profileService.createProfile(
       userCreateData.profile,
@@ -62,16 +62,16 @@ export class UserService {
     );
     await this.filterService.createFilter(userCreateData.filters, userId);
 
-    // await this.emailService.sendVerificationEmail(
-    //   userCreateData.email,
-    //   verificationToken,
-    // );
+    await this.emailService.sendVerificationEmail(
+      userCreateData.email,
+      verificationToken,
+    );
   }
 
   async updateUserDetails(
     userUpdateData: UpdateUserSchema,
     userId: string,
-    avatar: Express.Multer.File,
+    avatar?: Express.Multer.File,
   ): Promise<void> {
     await this.ensureUserExists(userId);
 
@@ -142,10 +142,6 @@ export class UserService {
   }
 
   async verifyEmail(token: string): Promise<void> {
-    if (!token) {
-      throw new BadRequestException('Token is required');
-    }
-
     const userId = await this.userRepository.findUserByVerificationToken(token);
     if (!userId) {
       throw new NotFoundException('user');
