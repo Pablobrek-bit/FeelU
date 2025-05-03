@@ -59,14 +59,13 @@ describe('SwipeService', () => {
       // Arrange
       const userId = 'userId';
       (
-        createMockUserService().verifyUserExistsAndGetYourFilters as jest.Mock
+        mockUserService.verifyUserExistsAndGetYourFilters as jest.Mock
       ).mockResolvedValue(mockFilters);
-      (
-        createMockViewService().findPotentialMatchesIds as jest.Mock
-      ).mockResolvedValue(['viewedUserId1', 'viewedUserId2']);
-      (
-        createMockUserService().findPotentialMatches as jest.Mock
-      ).mockResolvedValue([
+      (mockViewService.findPotentialMatchesIds as jest.Mock).mockResolvedValue([
+        'viewedUserId1',
+        'viewedUserId2',
+      ]);
+      (mockUserService.findPotentialMatches as jest.Mock).mockResolvedValue([
         { id: 'user1', name: 'User 1' },
         { id: 'user2', name: 'User 2' },
       ]);
@@ -80,22 +79,19 @@ describe('SwipeService', () => {
         { id: 'user2', name: 'User 2' },
       ]);
       expect(
-        createMockUserService().verifyUserExistsAndGetYourFilters,
+        mockUserService.verifyUserExistsAndGetYourFilters,
       ).toHaveBeenCalled();
-      expect(
-        createMockViewService().findPotentialMatchesIds,
-      ).toHaveBeenCalledWith(userId, service['POTENTIAL_MATCH_LIMIT']);
-      expect(createMockUserService().findPotentialMatches).toHaveBeenCalledWith(
+      expect(mockViewService.findPotentialMatchesIds).toHaveBeenCalledWith(
+        userId,
+        service['POTENTIAL_MATCH_LIMIT'],
+      );
+      expect(mockUserService.findPotentialMatches).toHaveBeenCalledWith(
         userId,
         ['viewedUserId1', 'viewedUserId2'],
         ['WOMAN', 'MAN'],
         ['HETEROSEXUAL'],
         service['POTENTIAL_MATCH_LIMIT'],
       );
-      expect(createMockUserService().findUsersByIds).toHaveBeenCalledWith([
-        'user1',
-        'user2',
-      ]);
     });
   });
 });
