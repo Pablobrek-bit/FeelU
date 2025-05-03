@@ -35,6 +35,11 @@ export class SwipeService {
       this.POTENTIAL_MATCH_LIMIT,
     );
 
+    if (viewedUserIds.length === 0) {
+      this.logger.log(`No viewed users found for user ${userId}`);
+      return [];
+    }
+
     return await this.userService.findPotentialMatches(
       userId,
       viewedUserIds,
