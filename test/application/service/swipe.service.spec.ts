@@ -9,6 +9,7 @@ import { createMockMatchService } from '../../mocks/match.service.mock';
 import { createMockUserService } from '../../mocks/user.service.mock';
 import { createMockViewService } from '../../mocks/view.service.mock';
 import type { FilterModel } from '../../../src/domain/model/filters-model';
+import { EntityNotFoundException } from '../../../src/shared/exception/EntityNotFoundException';
 
 describe('SwipeService', () => {
   let service: SwipeService;
@@ -90,6 +91,46 @@ describe('SwipeService', () => {
         ['viewedUserId1', 'viewedUserId2'],
         ['WOMAN', 'MAN'],
         ['HETEROSEXUAL'],
+        service['POTENTIAL_MATCH_LIMIT'],
+      );
+    });
+
+    it('should throw an error if user does not exist', async () => {
+      // Arrange
+      const userId = 'userId';
+      (
+        mockUserService.verifyUserExistsAndGetYourFilters as jest.Mock
+      ).mockRejectedValue(new EntityNotFoundException('user'));
+
+      // Act & Assert
+      await expect(service.findPotentialMatches(userId)).rejects.toThrow(
+        new EntityNotFoundException('user'),
+      );
+      expect(
+        mockUserService.verifyUserExistsAndGetYourFilters,
+      ).toHaveBeenCalledWith(userId);
+    });
+
+    it('should return an empty array if no viewed users are found', async () => {
+      // Arrange
+      const userId = 'userId';
+      (
+        mockUserService.verifyUserExistsAndGetYourFilters as jest.Mock
+      ).mockResolvedValue(mockFilters);
+      (mockViewService.findPotentialMatchesIds as jest.Mock).mockResolvedValue(
+        [],
+      );
+
+      // Act
+      const potentialMatches = await service.findPotentialMatches(userId);
+
+      // Assert
+      expect(potentialMatches).toEqual([]);
+      expect(
+        mockUserService.verifyUserExistsAndGetYourFilters,
+      ).toHaveBeenCalledWith(userId);
+      expect(mockViewService.findPotentialMatchesIds).toHaveBeenCalledWith(
+        userId,
         service['POTENTIAL_MATCH_LIMIT'],
       );
     });
