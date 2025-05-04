@@ -102,4 +102,44 @@ describe('LikeService', () => {
       expect(result).toEqual(expectedResult);
     });
   });
+
+  describe('areUsersMatched', () => {
+    it('should call checkIfMatch with the correct userId and likedUserId', async () => {
+      // Arrange
+      const userId = 'user123';
+      const likedUserId = 'likedUser456';
+      const expectedResult = true;
+      (mockLikeRepository.checkIfMatch as jest.Mock).mockResolvedValue(
+        expectedResult,
+      );
+
+      // Act
+      const result = await service.areUsersMatched(userId, likedUserId);
+
+      // Assert
+      expect(mockLikeRepository.checkIfMatch).toHaveBeenCalledWith(
+        userId,
+        likedUserId,
+      );
+      expect(result).toEqual(expectedResult);
+    });
+
+    it('should return false if the match check fails', async () => {
+      // Arrange
+      const userId = 'user123';
+      const likedUserId = 'likedUser456';
+      const expectedResult = false;
+      (mockLikeRepository.checkIfMatch as jest.Mock).mockResolvedValue(false);
+
+      // Act
+      const result = await service.areUsersMatched(userId, likedUserId);
+
+      // Assert
+      expect(mockLikeRepository.checkIfMatch).toHaveBeenCalledWith(
+        userId,
+        likedUserId,
+      );
+      expect(result).toEqual(expectedResult);
+    });
+  });
 });
