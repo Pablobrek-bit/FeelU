@@ -142,4 +142,35 @@ describe('LikeService', () => {
       expect(result).toEqual(expectedResult);
     });
   });
+
+  describe('getLikedProfiles', () => {
+    it('should call getLikedProfiles with the correct userId', async () => {
+      // Arrange
+      const userId = 'user123';
+      const expectedLikedProfiles = ['likedUser456', 'likedUser789'];
+      (mockLikeRepository.getLikedProfiles as jest.Mock).mockResolvedValue(
+        expectedLikedProfiles,
+      );
+
+      // Act
+      const result = await service.getLikedProfiles(userId);
+
+      // Assert
+      expect(mockLikeRepository.getLikedProfiles).toHaveBeenCalledWith(userId);
+      expect(result).toEqual(expectedLikedProfiles);
+    });
+
+    it('should return an empty array if no liked profiles are found', async () => {
+      // Arrange
+      const userId = 'user123';
+      (mockLikeRepository.getLikedProfiles as jest.Mock).mockResolvedValue([]);
+
+      // Act
+      const result = await service.getLikedProfiles(userId);
+
+      // Assert
+      expect(mockLikeRepository.getLikedProfiles).toHaveBeenCalledWith(userId);
+      expect(result).toEqual([]);
+    });
+  });
 });
