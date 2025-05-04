@@ -10,6 +10,7 @@ import { createMockUserService } from '../../mocks/user.service.mock';
 import { createMockViewService } from '../../mocks/view.service.mock';
 import type { FilterModel } from '../../../src/domain/model/filters-model';
 import { EntityNotFoundException } from '../../../src/shared/exception/EntityNotFoundException';
+import { ForbiddenException } from '@nestjs/common';
 
 describe('SwipeService', () => {
   let service: SwipeService;
@@ -133,6 +134,129 @@ describe('SwipeService', () => {
         userId,
         service['POTENTIAL_MATCH_LIMIT'],
       );
+    });
+  });
+
+  describe('swipeProfile', () => {
+    it('should register a like and create a match', async () => {
+      // Arrange
+      const userId = 'userId';
+      const swipedUserId = 'swipedUserId';
+      const liked = true;
+      (mockViewService.registerView as jest.Mock).mockResolvedValue(undefined);
+      (mockLikeService.registerLike as jest.Mock).mockResolvedValue(true);
+      (mockMatchService.registerMatch as jest.Mock).mockResolvedValue(
+        undefined,
+      );
+
+      // Act
+      await service.swipeProfile(userId, swipedUserId, liked);
+
+      // Assert
+      expect(mockViewService.registerView).toHaveBeenCalledWith(
+        userId,
+        swipedUserId,
+      );
+      expect(mockLikeService.registerLike).toHaveBeenCalledWith(
+        userId,
+        swipedUserId,
+      );
+      expect(mockMatchService.registerMatch).toHaveBeenCalledWith(
+        userId,
+        swipedUserId,
+      );
+    });
+
+    it('should register a view without creating a match', async () => {
+      // Arrange
+      const userId = 'userId';
+      const swipedUserId = 'swipedUserId';
+      const liked = true;
+      (mockViewService.registerView as jest.Mock).mockResolvedValue(undefined);
+      (mockLikeService.registerLike as jest.Mock).mockResolvedValue(false);
+      (mockMatchService.registerMatch as jest.Mock).mockResolvedValue(
+        undefined,
+      );
+
+      // Act
+      await service.swipeProfile(userId, swipedUserId, liked);
+
+      // Assert
+      expect(mockViewService.registerView).toHaveBeenCalledWith(
+        userId,
+        swipedUserId,
+      );
+      expect(mockLikeService.registerLike).toHaveBeenCalledWith(
+        userId,
+        swipedUserId,
+      );
+      expect(mockMatchService.registerMatch).not.toHaveBeenCalled();
+    });
+
+    it('should throw an error if the user swipes their own profile', async () => {
+      // Arrange
+      const userId = 'userId';
+      const swipedUserId = 'userId'; // Same as userId
+      const liked = true;
+
+      // Act & Assert
+      await expect(
+        service.swipeProfile(userId, swipedUserId, liked),
+      ).rejects.toThrow(
+        new ForbiddenException('You cannot swipe your own profile.'),
+      );
+      expect(mockViewService.registerView).not.toHaveBeenCalled();
+      expect(mockLikeService.registerLike).not.toHaveBeenCalled();
+      expect(mockMatchService.registerMatch).not.toHaveBeenCalled();
+    });
+
+    it('should just register a view if the like is false', async () => {
+      // Arrange
+      const userId = 'userId';
+      const swipedUserId = 'swipedUserId';
+      const liked = false;
+      (mockViewService.registerView as jest.Mock).mockResolvedValue(undefined);
+      (mockLikeService.registerLike as jest.Mock).mockResolvedValue(false);
+      (mockMatchService.registerMatch as jest.Mock).mockResolvedValue(
+        undefined,
+      );
+
+      // Act
+      await service.swipeProfile(userId, swipedUserId, liked);
+
+      // Assert
+      expect(mockViewService.registerView).toHaveBeenCalledWith(
+        userId,
+        swipedUserId,
+      );
+      expect(mockLikeService.registerLike).not.toHaveBeenCalled();
+      expect(mockMatchService.registerMatch).not.toHaveBeenCalled();
+    });
+
+    it('should like a profile and not create a match', async () => {
+      // Arrange
+      const userId = 'userId';
+      const swipedUserId = 'swipedUserId';
+      const liked = true;
+      (mockViewService.registerView as jest.Mock).mockResolvedValue(undefined);
+      (mockLikeService.registerLike as jest.Mock).mockResolvedValue(false);
+      (mockMatchService.registerMatch as jest.Mock).mockResolvedValue(
+        undefined,
+      );
+
+      // Act
+      await service.swipeProfile(userId, swipedUserId, liked);
+
+      // Assert
+      expect(mockViewService.registerView).toHaveBeenCalledWith(
+        userId,
+        swipedUserId,
+      );
+      expect(mockLikeService.registerLike).toHaveBeenCalledWith(
+        userId,
+        swipedUserId,
+      );
+      expect(mockMatchService.registerMatch).not.toHaveBeenCalled();
     });
   });
 });
