@@ -62,4 +62,44 @@ describe('LikeService', () => {
       expect(result).toEqual(0);
     });
   });
+
+  describe('registerLike', () => {
+    it('should call registerLike with the correct userId and likedUserId', async () => {
+      // Arrange
+      const userId = 'user123';
+      const likedUserId = 'likedUser456';
+      const expectedResult = true;
+      (mockLikeRepository.registerLike as jest.Mock).mockResolvedValue(
+        expectedResult,
+      );
+
+      // Act
+      const result = await service.registerLike(userId, likedUserId);
+
+      // Assert
+      expect(mockLikeRepository.registerLike).toHaveBeenCalledWith(
+        userId,
+        likedUserId,
+      );
+      expect(result).toEqual(expectedResult);
+    });
+
+    it('should return false if the like registration fails', async () => {
+      // Arrange
+      const userId = 'user123';
+      const likedUserId = 'likedUser456';
+      const expectedResult = false;
+      (mockLikeRepository.registerLike as jest.Mock).mockResolvedValue(false);
+
+      // Act
+      const result = await service.registerLike(userId, likedUserId);
+
+      // Assert
+      expect(mockLikeRepository.registerLike).toHaveBeenCalledWith(
+        userId,
+        likedUserId,
+      );
+      expect(result).toEqual(expectedResult);
+    });
+  });
 });
