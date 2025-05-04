@@ -11,10 +11,8 @@ import { LikeService } from './like.service';
 export class SwipeService {
   private readonly logger = new Logger(SwipeService.name);
 
-  private readonly MATCHES_AVAILABLE_DATE = new Date('2025-06-12T11:00:00Z');
-  private readonly LIKED_PROFILES_AVAILABLE_DATE = new Date(
-    '2025-06-12T11:00:00Z',
-  );
+  private MATCHES_AVAILABLE_DATE = new Date('2025-06-12T11:00:00Z');
+  private LIKED_PROFILES_AVAILABLE_DATE = new Date('2025-06-12T11:00:00Z');
   private readonly POTENTIAL_MATCH_LIMIT = 10;
 
   constructor(
