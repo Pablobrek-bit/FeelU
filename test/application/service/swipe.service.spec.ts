@@ -259,4 +259,86 @@ describe('SwipeService', () => {
       expect(mockMatchService.registerMatch).not.toHaveBeenCalled();
     });
   });
+
+  describe('getMatches', () => {
+    it('should return matches for a user', async () => {
+      // Arrange
+      const userId = 'userId';
+      (
+        mockUserService.verifyUserExistsAndGetYourFilters as jest.Mock
+      ).mockResolvedValue(mockFilters);
+      (mockMatchService.getMatchesByUserId as jest.Mock).mockResolvedValue([
+        'matchId1',
+        'matchId2',
+      ]);
+      (mockUserService.findUsersByIds as jest.Mock).mockResolvedValue([
+        { id: 'matchId1', name: 'Match 1' },
+        { id: 'matchId2', name: 'Match 2' },
+      ]);
+      service['MATCHES_AVAILABLE_DATE'] = new Date(
+        new Date().getTime() - 1000 * 60 * 60 * 24 * 30,
+      );
+
+      // Act
+      const matches = await service.getMatches(userId);
+
+      // Assert
+      expect(matches).toEqual([
+        { id: 'matchId1', name: 'Match 1' },
+        { id: 'matchId2', name: 'Match 2' },
+      ]);
+    });
+
+    it('should throw an error if the user does not exist', async () => {
+      // Arrange
+      const userId = 'userId';
+      (
+        mockUserService.verifyUserExistsAndGetYourFilters as jest.Mock
+      ).mockRejectedValue(new EntityNotFoundException('user'));
+      service['MATCHES_AVAILABLE_DATE'] = new Date(
+        new Date().getTime() - 1000 * 60 * 60 * 24 * 30,
+      );
+
+      // Act & Assert
+      await expect(service.getMatches(userId)).rejects.toThrow(
+        new EntityNotFoundException('user'),
+      );
+    });
+
+    it('should return an empty array if no matches are found', async () => {
+      // Arrange
+      const userId = 'userId';
+      (
+        mockUserService.verifyUserExistsAndGetYourFilters as jest.Mock
+      ).mockResolvedValue(mockFilters);
+      (mockMatchService.getMatchesByUserId as jest.Mock).mockResolvedValue([]);
+      service['MATCHES_AVAILABLE_DATE'] = new Date(
+        new Date().getTime() - 1000 * 60 * 60 * 24 * 30,
+      );
+
+      // Act
+      const matches = await service.getMatches(userId);
+
+      // Assert
+      expect(matches).toEqual([]);
+    });
+
+    it('should throw an error if the matches feature is not available', async () => {
+      // Arrange
+      const userId = 'userId';
+      (
+        mockUserService.verifyUserExistsAndGetYourFilters as jest.Mock
+      ).mockResolvedValue(mockFilters);
+      service['MATCHES_AVAILABLE_DATE'] = new Date(
+        new Date().getTime() + 1000 * 60 * 60 * 24 * 30,
+      );
+
+      // Act & Assert
+      await expect(service.getMatches(userId)).rejects.toThrow(
+        new ForbiddenException(
+          'This feature is not available yet. Please check back later.',
+        ),
+      );
+    });
+  });
 });
