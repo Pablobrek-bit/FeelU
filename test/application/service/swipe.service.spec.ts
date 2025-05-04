@@ -341,4 +341,86 @@ describe('SwipeService', () => {
       );
     });
   });
+
+  describe('getLikedProfiles', () => {
+    it('should return liked profiles for a user', async () => {
+      // Arrange
+      const userId = 'userId';
+      (
+        mockUserService.verifyUserExistsAndGetYourFilters as jest.Mock
+      ).mockResolvedValue(mockFilters);
+      (mockLikeService.getLikedProfiles as jest.Mock).mockResolvedValue([
+        'likedProfileId1',
+        'likedProfileId2',
+      ]);
+      (mockUserService.findUsersByIds as jest.Mock).mockResolvedValue([
+        { id: 'likedProfileId1', name: 'Liked Profile 1' },
+        { id: 'likedProfileId2', name: 'Liked Profile 2' },
+      ]);
+      service['LIKED_PROFILES_AVAILABLE_DATE'] = new Date(
+        new Date().getTime() - 1000 * 60 * 60 * 24 * 30,
+      );
+
+      // Act
+      const likedProfiles = await service.getLikedProfiles(userId);
+
+      // Assert
+      expect(likedProfiles).toEqual([
+        { id: 'likedProfileId1', name: 'Liked Profile 1' },
+        { id: 'likedProfileId2', name: 'Liked Profile 2' },
+      ]);
+    });
+
+    it('should throw an error if the user does not exist', async () => {
+      // Arrange
+      const userId = 'userId';
+      (
+        mockUserService.verifyUserExistsAndGetYourFilters as jest.Mock
+      ).mockRejectedValue(new EntityNotFoundException('user'));
+      service['LIKED_PROFILES_AVAILABLE_DATE'] = new Date(
+        new Date().getTime() - 1000 * 60 * 60 * 24 * 30,
+      );
+
+      // Act & Assert
+      await expect(service.getLikedProfiles(userId)).rejects.toThrow(
+        new EntityNotFoundException('user'),
+      );
+    });
+
+    it('should return an empty array if no liked profiles are found', async () => {
+      // Arrange
+      const userId = 'userId';
+      (
+        mockUserService.verifyUserExistsAndGetYourFilters as jest.Mock
+      ).mockResolvedValue(mockFilters);
+      (mockLikeService.getLikedProfiles as jest.Mock).mockResolvedValue([]);
+      service['LIKED_PROFILES_AVAILABLE_DATE'] = new Date(
+        new Date().getTime() - 1000 * 60 * 60 * 24 * 30,
+      );
+
+      // Act
+      const likedProfiles = await service.getLikedProfiles(userId);
+
+      // Assert
+      expect(likedProfiles).toEqual([]);
+    });
+
+    it('should throw an error if the liked profiles feature is not available', async () => {
+      // Arrange
+      const userId = 'userId';
+      (
+        mockUserService.verifyUserExistsAndGetYourFilters as jest.Mock
+      ).mockResolvedValue(mockFilters);
+      service['LIKED_PROFILES_AVAILABLE_DATE'] = new Date(
+        new Date().getTime() + 1000 * 60 * 60 * 24 * 30,
+      );
+
+      // Act & Assert
+      await expect(service.getLikedProfiles(userId)).rejects.toThrow(
+        new ForbiddenException(
+          'This feature is not available yet. Please check back later.',
+        ),
+      );
+    });
+  });
 });
