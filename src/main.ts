@@ -20,8 +20,8 @@ async function bootstrap() {
   app.useGlobalFilters(new GlobalExceptionFilter());
 
   const config = new DocumentBuilder()
-    .setTitle('Tindaria API')
-    .setDescription('API documentation for the Tindaria application')
+    .setTitle('FeelU API')
+    .setDescription('API documentation for the FeelU application')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

@@ -1,24 +1,24 @@
 services:
-  tindaria:
-    container_name: tindaria
+  feelu:
+    container_name: feelu
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - '3000:3000'
     environment:
-      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@tindaria_db:5432/${DB_NAME}
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@feelu_db:5432/${DB_NAME}
     depends_on:
-      tindaria_db:
+      feelu_db:
         condition: service_healthy
     links:
-      - tindaria_db
+      - feelu_db
     volumes:
       - .:/usr/app
       - /usr/app/node_modules
 
-  tindaria_db:
-    container_name: tindaria_db
+  feelu_db:
+    container_name: feelu_db
     image: postgres:latest
     environment:
       POSTGRES_USER: ${DB_USER}
@@ -27,7 +27,7 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - tindaria_db_data:/var/lib/postgresql/data
+      - feelu_db_data:/var/lib/postgresql/data
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${DB_USER} -d ${DB_NAME}']
       interval: 10s
@@ -35,4 +35,4 @@ services:
       retries: 5
 
 volumes:
-  tindaria_db_data:
+  feelu_db_data:

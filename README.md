@@ -1,4 +1,4 @@
-# Tindaria API 🚀
+# FeelU API 🚀
 
 [![Node.js](https://img.shields.io/badge/Node.js-20.17.0-brightgreen)](https://nodejs.org/)
 [![NestJS](https://img.shields.io/badge/NestJS-11.x-red)](https://nestjs.com/)
@@ -135,7 +135,7 @@ test                    # Testes E2E
 1.  **Clone o repositório**
     ```bash
     git clone <url-do-repositorio>
-    cd tindaria
+    cd FeelU
     ```
 2.  **Configure as variáveis de ambiente**
     - Copie `.env.example` para `.env`.
@@ -143,7 +143,7 @@ test                    # Testes E2E
     - **Importante:** Atualize `FIREBASE_CREDENTIALS` com o caminho correto para o seu arquivo de credenciais do Firebase.
 3.  **Inicie os containers do Docker (Banco de Dados)**
     ```bash
-    docker-compose up -d tindaria_db
+    docker-compose up -d feelu_db
     ```
     Aguarde o banco de dados ficar saudável (verifique com `docker ps` ou logs).
 4.  **Instale as dependências**
@@ -203,10 +203,10 @@ NODE_ENV=dev # ou prod, test
 PORT=3000
 
 # Configurações do Banco de Dados PostgreSQL
-DB_NAME=tindaria_db
-DB_USER=tindaria_user
+DB_NAME=feelu_db
+DB_USER=feelu_user
 DB_PASSWORD=sua_senha_db
-DB_HOST=localhost # ou o host do container docker (ex: tindaria_db)
+DB_HOST=localhost # ou o host do container docker (ex: feelu_db)
 DB_PORT=5432
 DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=public"
 
@@ -264,8 +264,8 @@ FIREBASE_BUCKET_URL=gs://seu-bucket-name.appspot.com # URL do seu bucket no Fire
 
 1.  **Erro de conexão com o banco de dados (`Can't reach database server`)**:
 
-    - Verifique se o container `tindaria_db` está rodando (`docker ps`).
-    - Confirme se as variáveis `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` no `.env` estão corretas e correspondem à configuração do `docker-compose.yml`. Se rodando localmente fora do docker-compose, `DB_HOST` deve ser `localhost`. Se rodando dentro do docker-compose, `DB_HOST` deve ser o nome do serviço (`tindaria_db`).
+    - Verifique se o container `feelu_db` está rodando (`docker ps`).
+    - Confirme se as variáveis `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` no `.env` estão corretas e correspondem à configuração do `docker-compose.yml`. Se rodando localmente fora do docker-compose, `DB_HOST` deve ser `localhost`. Se rodando dentro do docker-compose, `DB_HOST` deve ser o nome do serviço (`feelu_db`).
     - Verifique se a porta `5432` não está sendo usada por outro processo.
     - Tente conectar-se manualmente ao banco de dados usando `psql` ou uma ferramenta de GUI.
 

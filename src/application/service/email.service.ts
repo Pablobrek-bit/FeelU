@@ -13,9 +13,9 @@ export class EmailService {
 
     try {
       await this.transporter.sendMail({
-        from: `Tindaria Team <${env.EMAIL_USER}>`,
+        from: `FeelU Team <${env.EMAIL_USER}>`,
         to: email,
-        subject: 'Verifique seu endereço de e-mail no Tindaria',
+        subject: 'Verifique seu endereço de e-mail no FeelU',
         html,
         text,
         headers: {
@@ -47,7 +47,7 @@ export class EmailService {
   } {
     const html = `
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
-        <h1 style="text-align: center; color: #007bff;">Bem-vindo ao Tindaria!</h1>
+        <h1 style="text-align: center; color: #007bff;">Bem-vindo ao FeelU!</h1>
         <p>Olá,</p>
         <p>Obrigado por se registrar! Por favor, clique no botão abaixo para verificar seu endereço de e-mail e ativar sua conta:</p>
         <p style="text-align: center; margin: 30px 0;">
@@ -56,13 +56,13 @@ export class EmailService {
         <p>Se o botão não funcionar, copie e cole o seguinte link no seu navegador:</p>
         <p style="word-break: break-all;">${verificationUrl}</p>
         <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
-        <p style="font-size: 0.9em; color: #777; text-align: center;">Se você não se registrou no Tindaria, por favor ignore este e-mail.</p>
+        <p style="font-size: 0.9em; color: #777; text-align: center;">Se você não se registrou no FeelU, por favor ignore este e-mail.</p>
       </div>
     `;
 
     // Versão em texto puro
     const text = `
-Bem-vindo ao Tindaria!
+Bem-vindo ao FeelU!
 
 Olá,
 
@@ -70,7 +70,7 @@ Obrigado por se registrar! Por favor, copie e cole o seguinte link no seu navega
 
 ${verificationUrl}
 
-Se você não se registrou no Tindaria, por favor ignore este e-mail.
+Se você não se registrou no FeelU, por favor ignore este e-mail.
     `;
 
     return { html, text };
